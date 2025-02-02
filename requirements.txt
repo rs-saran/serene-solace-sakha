@@ -1,0 +1,10 @@
+notebook
+ipykernel
+langchain
+langchain_groq
+langchain_community
+langchain-ollama
+langgraph
+pytz
+black
+isort
