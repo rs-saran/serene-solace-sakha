@@ -14,8 +14,8 @@ from response_templates.conversation_state import ConversationState
 # Graph Builder Class to manage the state graph and routing
 class ConversationGraph:
     def __init__(self,llm):
-        self.builder = StateGraph(ConversationState)
         self.llm = llm
+        self.builder = StateGraph(ConversationState)
         self._add_nodes()
         self._add_edges()
         

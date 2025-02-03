@@ -2,6 +2,7 @@
 
 from response_templates.activity_reminder_config import ActivityReminderConfig
 from response_templates.conversation_state import ConversationState
+from utils import get_current_time_ist, get_llm
 
 def set_activity_reminder(conversation_state:ConversationState):
     conversation_history = conversation_state.get("conversation_history",[])
@@ -26,6 +27,8 @@ def set_activity_reminder(conversation_state:ConversationState):
     
     '''
 
+    llm_reminder_config = get_reminder_llm()
+
     reminder_config_extraction_response = llm_reminder_config.invoke(reminder_config_extraction)
     
     # print(f"<==== Setting reminder for {reminder_config_extraction_response.get("activity","None")} at {reminder_config_extraction_response.get("time",None)}")
@@ -34,5 +37,5 @@ def set_activity_reminder(conversation_state:ConversationState):
     return {"reminder_status": True}
 
 
-def get_reminder_llm(llm):
+def get_reminder_llm(llm=get_llm()):
     return llm.with_structured_output(ActivityReminderConfig)

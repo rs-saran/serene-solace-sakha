@@ -1,8 +1,10 @@
 # Entry point for the Frienn
 from conversation_graph import ConversationGraph, ConversationProcessor
+from utils import get_llm
 
 # Initialize the conversation graph and processor
-conversation_graph = ConversationGraph()
+
+conversation_graph = ConversationGraph(llm=get_llm()).compile()
 processor = ConversationProcessor(conversation_graph)
 
 while True:
