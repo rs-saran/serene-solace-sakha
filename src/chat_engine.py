@@ -1,4 +1,5 @@
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from response_templates.conversation_state import ConversationState
 
 class ChatEngine:
     def __init__(self, llm, bot_name="Frienn", bot_char_prompt=None):
@@ -37,11 +38,11 @@ class ChatEngine:
         self.conversation_history.append(HumanMessage(content=user_input))
         self.conversation_history.append(AIMessage(content=response))
 
-    def chat(self, chat_state):
-        user_input = chat_state["user_input"]
-        preferred_activities = chat_state.get("preferred_activities", ["no preferences provided"])
-        self.conversation_history = chat_state.get("conversation_history", [])
-        self.exchange = chat_state.get("exchange", 0)
+    def chat(self,  conversation_state:ConversationState):
+        user_input = conversation_state["user_input"]
+        preferred_activities = conversation_state.get("preferred_activities", ["no preferences provided"])
+        self.conversation_history = conversation_state.get("conversation_history", [])
+        self.exchange = conversation_state.get("exchange", 0)
         
         self.generate_response(user_input, preferred_activities)
         

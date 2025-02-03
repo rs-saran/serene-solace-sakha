@@ -1,10 +1,11 @@
 # Handles activity reminders
 
-from response_templates.activity_remider_config import ActivityReminderConfig
+from response_templates.activity_reminder_config import ActivityReminderConfig
+from response_templates.conversation_state import ConversationState
 
-def set_activity_reminder(chat_state:ChatState):
-    conversation_history = chat_state.get("conversation_history",[])
-    user_input = chat_state["user_input"]
+def set_activity_reminder(conversation_state:ConversationState):
+    conversation_history = conversation_state.get("conversation_history",[])
+    user_input = conversation_state["user_input"]
 
     # print("received user-input: ", user_input)
 

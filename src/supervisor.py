@@ -1,6 +1,7 @@
 from response_templates.supervisor_response import SupervisorResponse
 from utils import get_llm
 from typing import List, Dict
+from response_templates.conversation_state import ConversationState
 
 class Supervisor:
     def __init__(self, llm):
@@ -34,8 +35,13 @@ class Supervisor:
         '''
         return base_char_prompt
 
-    def get_supervisor_decision(self, conversation_history: List[str], user_input: str, exchange: int) -> Dict:
+    def get_supervisor_decision(self, conversation_state:ConversationState) -> Dict:
         """Process the conversation history and current user input to get a supervisor's decision."""
+        conversation_history = conversation_state.get("conversation_history",[])
+        user_input = conversation_state["user_input"]
+        exchange = conversation_state.get("exchange",0)
+
+        # print("received user-input: ", user_input)
         
         # Select recent exchanges if there are more than 6
         select_conv = conversation_history if len(conversation_history) < 6 else conversation_history[-6:]

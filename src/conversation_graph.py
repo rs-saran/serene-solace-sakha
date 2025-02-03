@@ -1,31 +1,25 @@
 from typing import TypedDict, Literal
-from langchain.schema import AnyMessage
+from langchain_core.messages import AnyMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph.memory import MemorySaver
+from langgraph.checkpoint.memory import MemorySaver
 
 # Assuming these are defined elsewhere in your project
 from supervisor import Supervisor
 from chat_engine import ChatEngine
-from reminder import set_activity_reminder
+from reminder_manager import set_activity_reminder
 from crisis_handler import crisis_handler
 from response_templates.supervisor_response import SupervisorResponse
-
-# Conversation State to hold all user interaction details
-class ConversationState(TypedDict):
-    exchange: int
-    conversation_history: list[AnyMessage]
-    preferred_activities: list[str]
-    user_input: str
-    supervisor_response: SupervisorResponse
+from response_templates.conversation_state import ConversationState
 
 # Graph Builder Class to manage the state graph and routing
 class ConversationGraph:
     def __init__(self,llm):
         self.builder = StateGraph(ConversationState)
+        self.llm = llm
         self._add_nodes()
         self._add_edges()
-        self.llm = llm
         
+
 
     def _add_nodes(self):
         """Add all nodes to the graph"""
@@ -63,7 +57,7 @@ class ConversationGraph:
 
 
 class ConversationProcessor:
-    def __init__(self, conversation_graph: ConversationGraph):
+    def __init__(self, conversation_graph: StateGraph):
         self.conversation_graph = conversation_graph
 
     def process_input(self, user_input: str, thread_id="1", user_id="dev-user"):
