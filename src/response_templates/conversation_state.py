@@ -9,3 +9,5 @@ class ConversationState(TypedDict):
     preferred_activities: list[str]
     user_input: str
     supervisor_response: SupervisorResponse
+    flow: str
+    

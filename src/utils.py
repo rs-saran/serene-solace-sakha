@@ -1,6 +1,6 @@
 # Helper functions (e.g., time handling, formatting)
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from IPython.display import Image, display
@@ -9,7 +9,12 @@ from langchain_groq import ChatGroq
 
 def get_current_time_ist():
     ist = pytz.timezone("Asia/Kolkata")  # IST timezone
-    now_ist = datetime.now(ist)
+    now_ist = datetime.now(ist) 
+    return now_ist.strftime("%Y-%m-%d %H:%M:%S %Z%z")
+
+def get_current_time_ist_30min_lag():
+    ist = pytz.timezone("Asia/Kolkata")  # IST timezone
+    now_ist = datetime.now(ist) - timedelta(minutes=30)
     return now_ist.strftime("%Y-%m-%d %H:%M:%S %Z%z")
 
 

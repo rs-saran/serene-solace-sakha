@@ -51,14 +51,7 @@ class Supervisor:
 
         print(f"=====> Supervisor Decision: {supervisor_response} <=====")
 
-        if exchange == 0:
-            return {"preferred_activities": self.fetch_user_preferences(), "supervisor_response": supervisor_response}
-        
         return {"supervisor_response": supervisor_response}
 
-    def fetch_user_preferences(self) -> List[str]:
-        """Fetch user preferences for mood improvement activities (Placeholder for actual implementation)."""
-        # This function could interact with the user or retrieve saved preferences
-        return ["activity1", "activity2", "activity3"]  # Placeholder list of activities
 
 
