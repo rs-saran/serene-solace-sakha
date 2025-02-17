@@ -29,22 +29,17 @@ class ChatEngine:
     def get_activity_suggestion_guidelines(self):
 
         return '''Activity Suggestion Guidelines:
-    
-                Suggest the activities preferred by user if available else your choice.
-                Do not suggest digital engagement activities or games.
 
-                Suggest proper duration and time.
-                Consider time and place the user is in for activity suggestion.
-
-                Ask the user if they want to do the activity now or sometime later, suggested time should be rounded.
-                Do not overwhelm the user with choices and questions.
-                
-                Once the activity and time are chosen:
-
-                Always double check with the user on time and activity
-                Set a reminder once the user agrees on the activity and time if it is not immediate by replying with <set_reminder> (chosen activity) at (chosen start time) until  (chosen end time)</set_reminder>
-
-                After setting reminder try to end the conversation. 
+                1. Prioritize the user's preferred activities; otherwise, suggest a suitable one.
+                2. Avoid digital engagement activities or games.
+                3. Consider the user's time and location when suggesting activities, including appropriate duration.
+                4. Ask if they want to do it now or later, rounding the suggested time.
+                5. Keep choices and questions minimal to avoid overwhelming the user.
+                6. Confirm the activity and time before finalizing.
+                7. If not immediate, set a reminder using below command in the response:
+                    <set_reminder> {chosen_activity} at {start_time} until {end_time}</set_reminder>
+                    if multiple repeat the above line for each activity and time combination
+                8. After setting the reminder, try to end the conversation.
 
                 '''
                 
@@ -63,7 +58,7 @@ class ChatEngine:
                 chat_prompt_msgs = [
                     SystemMessage(self.get_frienn_char_prompt()),
                     SystemMessage(self.get_activity_suggestion_guidelines()),
-                    SystemMessage("Introduce about yourselves to the user. Introduction can be of medium size"),
+                    SystemMessage("Introduce yourself briefly and naturally before suggesting an activity"),
                     HumanMessage(user_input)
                      ]
             else: 
@@ -82,14 +77,14 @@ class ChatEngine:
                     SystemMessage(self.bot_char_prompt),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"),
-                    SystemMessage(f"Previously you have set a reminder for {self.get_reminder_details()}. Now remind the user it is time. Pump the user with motivation to complete the activity"),
+                    SystemMessage(f"Previously you set a reminder for {self.get_reminder_details()}. It’s time! Encourage the user to start their activity with enthusiasm and motivation."),
                 ]
             else:
                 chat_prompt_msgs = [
                     SystemMessage(self.bot_char_prompt),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"),
-                    SystemMessage(f"Reminder details: {self.get_reminder_details()}. Provide the user with motivation to complete the activity. You may suggest some fun innovative additions to the activity if user is demotivated."),
+                    SystemMessage(f"Reminder details: {self.get_reminder_details()}. Motivate the user to complete the activity. If they seem reluctant, suggest small fun modifications to make it more enjoyable else end the conversation."),
                     HumanMessage(user_input)
                 ]
 
@@ -100,14 +95,14 @@ class ChatEngine:
                     SystemMessage(f"Activities preferred by user: {preferred_activities}"),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"),
-                    SystemMessage(f"Previously you have set a reminder for walking at {get_current_time_ist_30min_lag()}.  Check if they completed the activity and follow up with the user on how it went, if the user completed the activity and if it helped them improve their mood."),
+                    SystemMessage(f"You set a reminder for walking at {get_current_time_ist_30min_lag()}. Check in on the user’s experience—ask if they completed it and how it made them feel."),
                 ]
             else:
                 chat_prompt_msgs = [
                     SystemMessage(self.bot_char_prompt),
                     SystemMessage(f"Activities preferred by user: {preferred_activities}"),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
-                    SystemMessage(f"Previously you have set a reminder for walking at {get_current_time_ist_30min_lag()}. Check if they completed the activity and follow up with the user on how it went, if the user completed the activity and if it helped them improve their mood."),
+                    SystemMessage(f"Previously you have set a reminder for walking at {get_current_time_ist_30min_lag()}. Now you are checking in on the user. Continue the conversation as friend and end the conversation."),
                     SystemMessage(f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"),
                     HumanMessage(user_input)
                 ]

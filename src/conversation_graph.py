@@ -25,7 +25,6 @@ class ConversationGraph:
         """Add all nodes to the graph"""
         self.builder.add_node("Supervisor", Supervisor(llm=self.llm).get_supervisor_decision)
         self.builder.add_node("Frienn", ChatEngine(llm=self.llm).chat)
-        self.builder.add_node("setReminder", set_activity_reminder)
         self.builder.add_node("crisisHandler", crisis_handler)
 
     def _add_edges(self):
@@ -33,10 +32,9 @@ class ConversationGraph:
         self.builder.add_edge(START, "Supervisor")
         self.builder.add_conditional_edges("Supervisor", self._determine_route)
         self.builder.add_edge("Frienn", END)
-        self.builder.add_edge("setReminder", "Frienn")
         self.builder.add_edge("crisisHandler", END)
 
-    def _determine_route(self, conversation_state: ConversationState) -> Literal["Frienn", "crisisHandler", "setReminder"]:
+    def _determine_route(self, conversation_state: ConversationState) -> Literal["Frienn", "crisisHandler"]:
         """Determine the next route based on the supervisor response"""
         supervisor_response = conversation_state.get("supervisor_response")
         picked_route = supervisor_response.pickedRoute
@@ -45,8 +43,8 @@ class ConversationGraph:
             return "Frienn"
         elif picked_route == 'crisis_helpline':
             return "crisisHandler"
-        elif picked_route == 'set_reminder':
-            return "setReminder"
+        # elif picked_route == 'set_reminder':
+        #     return "setReminder"
         else:
             return "Frienn"
 

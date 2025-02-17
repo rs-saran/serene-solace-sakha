@@ -1,4 +1,4 @@
-1. improve activity suggestion -> set reminder flow
-2. implement frienn directions after activity suggestions
+1. improve activity suggestion -> set reminder flow --done
+2. implement frienn directions after activity suggestions --done
 3. user personalization 
-4. chat persistence in postgres
+4. chat persistence in postgres 

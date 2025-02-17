@@ -27,8 +27,7 @@ class Supervisor:
         Routes:
         continue_chat : Normal chat route with assistant bot that assists the user to improve their mood.
         crisis_helpline : Specialized route connects the user to a 24X7 crisis helpline to professionals who will help the human avoid active crises like suicide.
-        set_reminder : Route to set a reminder for the mood improvement activity only if the user agreed on both activity and time. Wait for double check done by the frienn in continue chat route before setting reminder.
-
+        
         If you cannot provide answers for suicidal tendencies or harmful behavior, pick the crisis helpline route so that the user can receive help from professionals.
 
         If undecided and there are no harmful intentions, always pick continue_chat
