@@ -6,7 +6,10 @@ from src.response_templates.activity_feedback import ActivityFeedback
 class FriennResponseForASFlow(BaseModel):
     "Response template to follow"
     replyToUser: str = Field(description= "Reply to be shown to user")
-    reminder: Optional[ActivityReminderConfig] =Field(None, description ="Activity reminder tool call, help set, update or delete reminder")
+    didUserAgreeOnActivity: bool = Field(description= "True if user agreed on actvity else False")
+    didUserAgreeOnTime: bool = Field(description= "True if user agreed on time else False")
+    didUserAgreeOnDuration: bool = Field(description= "True if user agreed on duration of the activity else False")
+    reminder: Optional[ActivityReminderConfig] =Field(None, description ="set the reminder only when all [`didUserAgreeOnActivity`,`didUserAgreeOnTime`,`didUserAgreeOnDuration`] are TRUE.  Activity reminder tool call, help set, update or delete reminder.")
 
 
 class FriennResponseForRemFlow(BaseModel):
