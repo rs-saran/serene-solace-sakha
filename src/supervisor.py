@@ -1,7 +1,7 @@
-from response_templates.supervisor_response import SupervisorResponse
-from utils import get_llm
+from src.response_templates.supervisor_response import SupervisorResponse
+from src.utils import get_llm
 from typing import List, Dict
-from response_templates.conversation_state import ConversationState
+from src.response_templates.conversation_state import ConversationState
 
 class Supervisor:
     def __init__(self, llm):
