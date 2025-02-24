@@ -8,3 +8,4 @@ langgraph
 pytz
 black
 isort
+langgraph-checkpoint-postgres
