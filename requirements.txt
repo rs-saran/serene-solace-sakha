@@ -9,3 +9,4 @@ pytz
 black
 isort
 langgraph-checkpoint-postgres
+APScheduler
