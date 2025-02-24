@@ -11,8 +11,7 @@ class ActivitySuggestionFlow(ChatFlow):
         if exchange == 0:
             chat_prompt_msgs = [
                 SystemMessage(get_frienn_char_prompt()),
-                SystemMessage(get_activity_suggestion_prompt()),
-                SystemMessage("Introduce yourself briefly and naturally before suggesting an activity"),
+                SystemMessage("Introduce yourself briefly and naturally and check how the user is doing."),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
                 HumanMessage(user_input)
                     ]

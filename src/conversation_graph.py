@@ -11,16 +11,17 @@ from src.crisis_handler import crisis_handler
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.response_templates.conversation_state import ConversationState
 
+
 # Graph Builder Class to manage the state graph and routing
 class ConversationGraph:
-    def __init__(self,llm):
+    def __init__(self,llm, checkpointer):
         self.llm = llm
+        self.checkpointer = checkpointer
         self.builder = StateGraph(ConversationState)
         self._add_nodes()
         self._add_edges()
         
-
-
+        
     def _add_nodes(self):
         """Add all nodes to the graph"""
         self.builder.add_node("Supervisor", Supervisor(llm=self.llm).get_supervisor_decision)
@@ -50,8 +51,8 @@ class ConversationGraph:
 
     def compile(self):
         """Compile the final state graph with memory saver"""
-        memory = MemorySaver()
-        return self.builder.compile(checkpointer=memory)
+        # memory = MemorySaver()
+        return self.builder.compile(checkpointer=self.checkpointer)
 
 
 class ConversationProcessor:
