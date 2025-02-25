@@ -1,5 +1,5 @@
 from src.response_templates.frienn_template import FriennResponseForRemFlow
-from src.prompt_manager import get_activity_suggestion_prompt, get_frienn_char_prompt
+from src.managers.prompt_manager import get_activity_suggestion_prompt, get_frienn_char_prompt
 from src.chat_flows.chat_flow import ChatFlow
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from src.utils import get_current_time_ist
