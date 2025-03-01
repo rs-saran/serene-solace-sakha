@@ -1,5 +1,7 @@
-from typing import TypedDict, Literal
+from typing import Literal, TypedDict
+
 from langchain_core.messages import AnyMessage
+
 from src.response_templates.supervisor_response import SupervisorResponse
 
 print("asdf")
@@ -13,4 +15,3 @@ class ConversationState(TypedDict):
     user_input: str
     supervisor_response: SupervisorResponse
     flow: str
-    

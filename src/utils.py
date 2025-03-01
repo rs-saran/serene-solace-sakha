@@ -1,16 +1,16 @@
 # Helper functions (e.g., time handling, formatting)
 
+import os
 from datetime import datetime, timedelta
 
 import pytz
 from IPython.display import Image, display
 from langchain_groq import ChatGroq
-import os
 
 
 def get_current_time_ist():
     ist = pytz.timezone("Asia/Kolkata")  # IST timezone
-    now_ist = datetime.now(ist) 
+    now_ist = datetime.now(ist)
     return now_ist.strftime("%Y-%m-%d %H:%M:%S %Z%z")
 
 
@@ -51,7 +51,7 @@ def get_llm():
 
 
 def fetch_user_preferences():
-   return ['jogging','movies','meditation'] 
+    return ["jogging", "movies", "meditation"]
 
 
 def print_directory_structure(path, indent=0):
@@ -59,19 +59,21 @@ def print_directory_structure(path, indent=0):
     if not os.path.exists(path):
         print("The specified path does not exist.")
         return
-    
+
     # If it's a directory, walk through all its contents
     if os.path.isdir(path):
         # Skip the __pycache__ directory
         if os.path.basename(path) == "__pycache__":
             return
-        
-        print('  ' * indent + f"[DIR] {os.path.basename(path)}")
+
+        print("  " * indent + f"[DIR] {os.path.basename(path)}")
         for item in os.listdir(path):
             item_path = os.path.join(path, item)
             if os.path.isdir(item_path):
-                print_directory_structure(item_path, indent + 1)  # Recurse for directories
+                print_directory_structure(
+                    item_path, indent + 1
+                )  # Recurse for directories
             else:
-                print('  ' * (indent + 1) + f"[FILE] {item}")
+                print("  " * (indent + 1) + f"[FILE] {item}")
     else:
         print("The specified path is not a directory.")
