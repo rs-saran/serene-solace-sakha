@@ -1,9 +1,13 @@
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from src.managers.postgres_db_manager import PostgresDBManager
+
 
 class ReminderManager:
     """Handles storing and scheduling reminders."""
+
     def __init__(self, db_manager: PostgresDBManager):
         self.db_manager = db_manager
         # self.scheduler = BackgroundScheduler()
@@ -17,18 +21,33 @@ class ReminderManager:
         query = f"UPDATE reminders SET {column} = TRUE WHERE id = %s"
         self.db_manager.execute(query, (reminder_id,))
 
-    def _schedule_reminder(self, reminder_id, user_id, activity, start_time, duration, send_reminder, send_followup):
+    def _schedule_reminder(
+        self,
+        reminder_id,
+        user_id,
+        activity,
+        start_time,
+        duration,
+        send_reminder,
+        send_followup,
+    ):
         if send_reminder:
             self.scheduler.add_job(
-                self._execute_reminder, 'date', run_date=start_time,
-                args=[reminder_id, user_id, f"Reminder: Time for {activity}!"], id=f"reminder_{reminder_id}"
+                self._execute_reminder,
+                "date",
+                run_date=start_time,
+                args=[reminder_id, user_id, f"Reminder: Time for {activity}!"],
+                id=f"reminder_{reminder_id}",
             )
 
         if send_followup:
             followup_time = start_time + timedelta(minutes=duration)
             self.scheduler.add_job(
-                self._execute_followup, 'date', run_date=followup_time,
-                args=[reminder_id, user_id, f"Follow-up: How was {activity}?"], id=f"followup_{reminder_id}"
+                self._execute_followup,
+                "date",
+                run_date=followup_time,
+                args=[reminder_id, user_id, f"Follow-up: How was {activity}?"],
+                id=f"followup_{reminder_id}",
             )
 
     def _execute_reminder(self, reminder_id, user_id, message):
@@ -49,11 +68,23 @@ class ReminderManager:
         for row in rows:
             self._schedule_reminder(*row)
 
-    def add_reminder(self, user_id, activity, start_time, duration, send_reminder=True, send_followup=True):
+    def add_reminder(
+        self,
+        user_id,
+        activity,
+        start_time,
+        duration,
+        send_reminder=True,
+        send_followup=True,
+    ):
         query = """
         INSERT INTO reminders (user_id, activity, start_time, duration, send_reminder, send_followup) 
         VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
         """
-        reminder_id = self.db_manager.execute(query, (user_id, activity, start_time, duration, send_reminder, send_followup), fetch=True)[0][0]
+        reminder_id = self.db_manager.execute(
+            query,
+            (user_id, activity, start_time, duration, send_reminder, send_followup),
+            fetch=True,
+        )[0][0]
         # self._schedule_reminder(reminder_id, user_id, activity, start_time, duration, send_reminder, send_followup)
         print(f"Reminder for {activity} scheduled!")

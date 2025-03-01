@@ -1,4 +1,5 @@
 from langgraph.checkpoint.postgres import PostgresSaver
+
 from src.managers.postgres_db_manager import PostgresDBManager
 
 
@@ -24,5 +25,3 @@ class PostgresCheckpointerManager:
         if self.pool:
             self.pool.close()
             print("PostgreSQL connection pool closed.")
-
-

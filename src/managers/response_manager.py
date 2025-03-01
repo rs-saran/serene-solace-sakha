@@ -1,16 +1,24 @@
 from typing import Union
+
 from pydantic import BaseModel
-# from src.reminder import ReminderDatabase
-from src.response_templates.activity_reminder_config import ActivityReminderConfig
-from src.response_templates.supervisor_response import (
-    FriennResponseForASFlow, FriennResponseForRemFlow, FriennResponseForFUFlow, ActivityFeedback
-)
+
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
+# from src.reminder import ReminderDatabase
+from src.response_templates.activity_reminder_config import \
+    ActivityReminderConfig
+from src.response_templates.frienn_template import (ActivityFeedback,
+                                                    FriennResponseForASFlow,
+                                                    FriennResponseForFUFlow,
+                                                    FriennResponseForRemFlow)
+
 
 class ResponseManager:
     """Handles chatbot responses and integrates with ReminderManager."""
-    def __init__(self, reminder_manager: ReminderManager, db_manager: PostgresDBManager):
+
+    def __init__(
+        self, reminder_manager: ReminderManager, db_manager: PostgresDBManager
+    ):
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
 
@@ -24,7 +32,7 @@ class ResponseManager:
             self._handle_rem_flow(response)
         elif isinstance(response, FriennResponseForFUFlow):
             self._handle_fu_flow(response)
-        
+
         return response.replyToUser
 
     def _handle_as_flow(self, response):
@@ -32,15 +40,19 @@ class ResponseManager:
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
         """
-        if response.didUserAgreeOnActivity and response.didUserAgreeOnTime and response.didUserAgreeOnDuration:
+        if (
+            response.didUserAgreeOnActivity
+            and response.didUserAgreeOnTime
+            and response.didUserAgreeOnDuration
+        ):
             if response.reminder:
                 self.reminder_manager.add_reminder(
                     response.reminder.user_id,
                     response.reminder.activity,
                     response.reminder.start_time,
                     response.reminder.duration,
-                    True, #response.reminder.send_reminder,
-                    True, #response.reminder.send_followup
+                    True,  # response.reminder.send_reminder,
+                    True,  # response.reminder.send_followup
                 )
 
     def _handle_fu_flow(self, response):
@@ -53,7 +65,15 @@ class ResponseManager:
             INSERT INTO activity_feedback (user_id, activity, feedback, rating) 
             VALUES (%s, %s, %s, %s)
             """
-            self.db_manager.execute(query, (response.activityFeedback.user_id, response.activityFeedback.activity, response.activityFeedback.feedback, response.activityFeedback.rating))
+            self.db_manager.execute(
+                query,
+                (
+                    response.activityFeedback.user_id,
+                    response.activityFeedback.activity,
+                    response.activityFeedback.feedback,
+                    response.activityFeedback.rating,
+                ),
+            )
 
     def _handle_rem_flow(self, response: FriennResponseForRemFlow):
         """
@@ -61,5 +81,6 @@ class ResponseManager:
         Currently, it only determines whether to suggest alternatives.
         """
         pass  # No explicit database interaction needed for now
+
 
 # Example Usage

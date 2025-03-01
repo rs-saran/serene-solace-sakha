@@ -1,17 +1,22 @@
 import psycopg
 from psycopg_pool import ConnectionPool
 
+
 class PostgresDBManager:
     """Manages database connections and setup."""
+
     _instance = None
 
-    def __new__(cls, db_config = {
-        "dbname": "postgres",
-        "user": "postgres",
-        "password": "1234",
-        "host": "localhost",
-        "port": "5432",
-        }):
+    def __new__(
+        cls,
+        db_config={
+            "dbname": "postgres",
+            "user": "postgres",
+            "password": "1234",
+            "host": "localhost",
+            "port": "5432",
+        },
+    ):
         if cls._instance is None:
             cls._instance = super(PostgresDBManager, cls).__new__(cls)
             cls._instance._initialize(db_config)
@@ -19,15 +24,15 @@ class PostgresDBManager:
 
     def _initialize(self, db_config):
         CONNECTION_KWARGS = {
-        "autocommit": True,
-        "prepare_threshold": 0,
+            "autocommit": True,
+            "prepare_threshold": 0,
         }
 
         self.pool = ConnectionPool(
             conninfo=f"dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']} host={db_config['host']} port={db_config['port']}",
             min_size=1,
             max_size=10,
-            kwargs=CONNECTION_KWARGS
+            kwargs=CONNECTION_KWARGS,
         )
         self.setup()
 
@@ -58,8 +63,7 @@ class PostgresDBManager:
                 reason_skipped TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-            """
-
+            """,
         ]
         for query in queries:
             self.execute(query)
