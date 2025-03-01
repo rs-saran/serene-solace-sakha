@@ -1,6 +1,6 @@
 from typing import Union
 from pydantic import BaseModel
-from src.reminder import ReminderDatabase
+# from src.reminder import ReminderDatabase
 from src.response_templates.activity_reminder_config import ActivityReminderConfig
 from src.response_templates.supervisor_response import (
     FriennResponseForASFlow, FriennResponseForRemFlow, FriennResponseForFUFlow, ActivityFeedback

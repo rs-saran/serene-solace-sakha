@@ -21,8 +21,7 @@ class ChatEngine:
         chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
         model_response = chat_flow.generate_response(self.exchange, user_input, conversation_history_pretty, preferred_activities)
         
-        # model_response = self.llm.with_structured_output(FriennResponse).invoke(chat_prompt_msgs)
-        print(f"Frienn:", model_response)
+        print(f"Frienn:", model_response)        
         
         self.update_conversation_history(user_input, str(model_response.replyToUser))
         self.exchange += 1
@@ -31,7 +30,7 @@ class ChatEngine:
         self.conversation_history.append(HumanMessage(content=user_input))
         self.conversation_history.append(AIMessage(content=response))
 
-    def chat(self,  conversation_state:ConversationState):
+    def chat(self,  conversation_state:ConversationState): 
         user_input = conversation_state["user_input"]
         preferred_activities = conversation_state.get("preferred_activities", ["no preferences provided"])
         self.conversation_history = conversation_state.get("conversation_history", [])
