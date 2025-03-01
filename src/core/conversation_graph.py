@@ -9,22 +9,27 @@ from src.core.chat_engine import ChatEngine
 from src.core.crisis_handler import crisis_handler
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.response_templates.conversation_state import ConversationState
-
+from src.managers.postgres_db_manager import PostgresDBManager
+from src.managers.reminder_manager import ReminderManager
+from src.managers.postgres_checkpoint_manager import PostgresCheckpointerManager
 
 # Graph Builder Class to manage the state graph and routing
 class ConversationGraph:
-    def __init__(self,llm, checkpointer):
+    def __init__(self, llm):
         self.llm = llm
-        self.checkpointer = checkpointer
+        self.db_manager = PostgresDBManager()
+        self.checkpointer = PostgresCheckpointerManager(self.db_manager)
+        self.reminder_manager = ReminderManager(self.db_manager)
+        self.response_manager = ResponseManager(reminder_manager=self.reminder_manager, db_manager=self.db_manager)
         self.builder = StateGraph(ConversationState)
         self._add_nodes()
         self._add_edges()
-        
+        # self.db_manager.setup()
         
     def _add_nodes(self):
         """Add all nodes to the graph"""
         self.builder.add_node("Supervisor", Supervisor(llm=self.llm).get_supervisor_decision)
-        self.builder.add_node("Frienn", ChatEngine(llm=self.llm).chat)
+        self.builder.add_node("Frienn", ChatEngine(llm=self.llm,response_manager=self.response_manager).chat)
         self.builder.add_node("crisisHandler", crisis_handler)
 
     def _add_edges(self):

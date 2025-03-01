@@ -5,12 +5,13 @@ from src.response_templates.frienn_template import FriennResponseForASFlow, Frie
 from src.chat_flows.chat_flow_manager import ChatFlowManager
 
 class ChatEngine:
-    def __init__(self, llm):
+    def __init__(self, llm, response_manager):
         self.llm = llm
         self.conversation_history = []
         self.exchange = 0
         self.flow = "activity_suggestion"
         self.chat_flow_manager = ChatFlowManager(llm)
+        self.response_manager = response_manager
 
 
     def generate_response(self, user_input, preferred_activities):
@@ -19,7 +20,9 @@ class ChatEngine:
         print("You:", user_input)
         
         chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
-        model_response = chat_flow.generate_response(self.exchange, user_input, conversation_history_pretty, preferred_activities)
+        raw_model_response = chat_flow.generate_response(self.exchange, user_input, conversation_history_pretty, preferred_activities)
+
+        model_response = self.response_manager.handle_response(raw_model_response)
         
         print(f"Frienn:", model_response)        
         

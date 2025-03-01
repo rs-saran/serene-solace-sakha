@@ -1,20 +1,13 @@
 from langgraph.checkpoint.postgres import PostgresSaver
-from psycopg_pool import ConnectionPool
+from src.managers.postgres_db_manager import PostgresDBManager
+
 
 class PostgresCheckpointerManager:
     """Handles PostgreSQL connection pooling and checkpointing."""
 
-    DB_URI = "postgres://postgres:1234@localhost:5432/postgres?sslmode=disable"
-    CONNECTION_KWARGS = {
-        "autocommit": True,
-        "prepare_threshold": 0,
-    }
-
-    def __init__(self):
+    def __init__(self, db_manager: PostgresDBManager):
         """Initialize the database connection pool and checkpointer."""
-        self.pool = ConnectionPool(
-            conninfo=self.DB_URI, max_size=20, kwargs=self.CONNECTION_KWARGS
-        )
+        self.pool = db_manager.pool
         self.checkpointer = PostgresSaver(self.pool)
         self._setup_database()
 
