@@ -19,7 +19,7 @@ class ChatEngine:
         self.chat_flow_manager = ChatFlowManager(llm)
         self.response_manager = response_manager
 
-    def generate_response(self, user_input, preferred_activities):
+    def generate_response(self, user_input, user_id, thread_id, preferred_activities):
 
         conversation_history_pretty = exchanges_pretty(self.conversation_history)
         print("You:", user_input)
@@ -29,7 +29,7 @@ class ChatEngine:
             self.exchange, user_input, conversation_history_pretty, preferred_activities
         )
 
-        model_response = self.response_manager.handle_response(raw_model_response)
+        model_response = self.response_manager.handle_response(user_id, raw_model_response)
 
         print(f"Frienn:", model_response)
 
@@ -42,6 +42,8 @@ class ChatEngine:
 
     def chat(self, conversation_state: ConversationState):
         user_input = conversation_state["user_input"]
+        user_id = conversation_state.get("user_id","dummy_user_id")
+        thread_id = conversation_state.get("thread_id","dummy_thread_id")
         preferred_activities = conversation_state.get(
             "preferred_activities", ["no preferences provided"]
         )
@@ -49,7 +51,7 @@ class ChatEngine:
         self.exchange = conversation_state.get("exchange", 0)
         self.flow = conversation_state.get("flow", "activity_suggestion")
 
-        self.generate_response(user_input, preferred_activities)
+        self.generate_response(user_input, user_id, thread_id, preferred_activities)
 
         return {
             "conversation_history": self.conversation_history,
