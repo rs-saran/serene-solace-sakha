@@ -44,7 +44,8 @@ class PostgresDBManager:
                 id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL,
                 activity TEXT NOT NULL,
-                start_time TIMESTAMP NOT NULL,
+                hour int NOT NULL,
+                minute int NOT NULL,
                 duration INT NOT NULL,
                 send_reminder BOOLEAN DEFAULT TRUE,
                 send_followup BOOLEAN DEFAULT TRUE,
@@ -67,6 +68,8 @@ class PostgresDBManager:
         ]
         for query in queries:
             self.execute(query)
+
+        print("exceuted postgres setup")
 
     def execute(self, query, params=None, fetch=False):
         with self.pool.connection() as conn:

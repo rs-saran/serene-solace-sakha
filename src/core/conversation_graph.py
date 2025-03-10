@@ -22,7 +22,7 @@ class ConversationGraph:
     def __init__(self, llm):
         self.llm = llm
         self.db_manager = PostgresDBManager()
-        self.checkpointer = PostgresCheckpointerManager(self.db_manager)
+        self.checkpointer = PostgresCheckpointerManager(self.db_manager).get_checkpointer()
         self.reminder_manager = ReminderManager(self.db_manager)
         self.response_manager = ResponseManager(
             reminder_manager=self.reminder_manager, db_manager=self.db_manager

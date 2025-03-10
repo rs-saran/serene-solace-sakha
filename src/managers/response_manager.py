@@ -4,11 +4,10 @@ from pydantic import BaseModel
 
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
-# from src.reminder import ReminderDatabase
 from src.response_templates.activity_reminder_config import \
     ActivityReminderConfig
-from src.response_templates.frienn_template import (ActivityFeedback,
-                                                    FriennResponseForASFlow,
+from src.response_templates.activity_feedback import ActivityFeedback
+from src.response_templates.frienn_template import (FriennResponseForASFlow,
                                                     FriennResponseForFUFlow,
                                                     FriennResponseForRemFlow)
 
@@ -47,9 +46,10 @@ class ResponseManager:
         ):
             if response.reminder:
                 self.reminder_manager.add_reminder(
-                    response.reminder.user_id,
+                    "dev-user-test",
                     response.reminder.activity,
-                    response.reminder.start_time,
+                    response.reminder.hour,
+                    response.remider.minute,
                     response.reminder.duration,
                     True,  # response.reminder.send_reminder,
                     True,  # response.reminder.send_followup
@@ -62,18 +62,20 @@ class ResponseManager:
         """
         if response.isFeedbackCollectionComplete and response.activityFeedback:
             query = """
-            INSERT INTO activity_feedback (user_id, activity, feedback, rating) 
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO activity_feedback (user_id, activity, is_completed, enjoyment_score, reason_skipped) 
+            VALUES (%s, %s, %s, %s, %s)
             """
             self.db_manager.execute(
                 query,
                 (
-                    response.activityFeedback.user_id,
+                    "dev-user-test",
                     response.activityFeedback.activity,
-                    response.activityFeedback.feedback,
-                    response.activityFeedback.rating,
+                    response.activityFeedback.is_completed,
+                    response.activityFeedback.enjoyment_score,
+                    response.activityFeedback.reason_skipped,
                 ),
             )
+
 
     def _handle_rem_flow(self, response: FriennResponseForRemFlow):
         """

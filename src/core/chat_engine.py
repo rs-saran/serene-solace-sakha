@@ -33,7 +33,7 @@ class ChatEngine:
 
         print(f"Frienn:", model_response)
 
-        self.update_conversation_history(user_input, str(model_response.replyToUser))
+        self.update_conversation_history(user_input, str(model_response))
         self.exchange += 1
 
     def update_conversation_history(self, user_input, response):
