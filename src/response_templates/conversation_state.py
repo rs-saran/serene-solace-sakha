@@ -4,11 +4,11 @@ from langchain_core.messages import AnyMessage
 
 from src.response_templates.supervisor_response import SupervisorResponse
 
-print("asdf")
-
 
 # Conversation State to hold all user interaction details
 class ConversationState(TypedDict):
+    user_id: str
+    thread_id: str
     exchange: int
     conversation_history: list[AnyMessage]
     preferred_activities: list[str]

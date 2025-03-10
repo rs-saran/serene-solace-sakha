@@ -26,7 +26,8 @@ class ReminderManager:
         reminder_id,
         user_id,
         activity,
-        start_time,
+        hour,
+        minute,
         duration,
         send_reminder,
         send_followup,
@@ -60,7 +61,7 @@ class ReminderManager:
 
     def _load_pending_reminders(self):
         query = """
-        SELECT id, user_id, activity, start_time, duration, send_reminder, send_followup 
+        SELECT id, user_id, activity, hour, minute, duration, send_reminder, send_followup 
         FROM reminders 
         WHERE is_reminder_sent = FALSE OR is_followup_sent = FALSE
         """
@@ -72,18 +73,19 @@ class ReminderManager:
         self,
         user_id,
         activity,
-        start_time,
+        hour,
+        minute,
         duration,
         send_reminder=True,
         send_followup=True,
     ):
         query = """
-        INSERT INTO reminders (user_id, activity, start_time, duration, send_reminder, send_followup) 
-        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO reminders (user_id, activity, hour, minute, duration, send_reminder, send_followup) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
         """
         reminder_id = self.db_manager.execute(
             query,
-            (user_id, activity, start_time, duration, send_reminder, send_followup),
+            (user_id, activity, hour, minute, duration, send_reminder, send_followup),
             fetch=True,
         )[0][0]
         # self._schedule_reminder(reminder_id, user_id, activity, start_time, duration, send_reminder, send_followup)
