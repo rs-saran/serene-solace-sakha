@@ -16,3 +16,4 @@ class ConversationState(TypedDict):
     user_input: str
     supervisor_response: SupervisorResponse
     flow: str
+    activity_details: dict  

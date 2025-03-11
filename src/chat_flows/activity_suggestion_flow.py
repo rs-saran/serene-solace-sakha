@@ -11,7 +11,7 @@ from src.utils import get_current_time_ist
 class ActivitySuggestionFlow(ChatFlow):
 
     def generate_response(
-        self, exchange, user_input, conversation_history_pretty, user_info
+        self, exchange, user_input, conversation_history_pretty, user_info, activity_details=None
     ):
         if exchange == 0:
             chat_prompt_msgs = [

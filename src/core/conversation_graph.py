@@ -60,14 +60,11 @@ class ConversationGraph:
             return "Frienn"
         elif picked_route == "crisis_helpline":
             return "crisisHandler"
-        # elif picked_route == 'set_reminder':
-        #     return "setReminder"
         else:
             return "Frienn"
 
     def compile(self):
         """Compile the final state graph with memory saver"""
-        # memory = MemorySaver()
         return self.builder.compile(checkpointer=self.checkpointer)
 
 
@@ -75,7 +72,7 @@ class ConversationProcessor:
     def __init__(self, conversation_graph: StateGraph):
         self.conversation_graph = conversation_graph
 
-    def process_input(self, user_input: str, thread_id="1", user_id="dev-user"):
+    def process_input(self, user_input: str, thread_id="dummy_thread_id", user_id="dummy_user_id"):
         """Process the user input through the conversation graph"""
         config = {"configurable": {"thread_id": thread_id, "user_id": user_id}}
         self.conversation_graph.invoke({"user_input": user_input}, config)
