@@ -7,7 +7,7 @@ from src.response_templates.activity_reminder_config import \
     ActivityReminderConfig
 
 
-class FriennResponseForASFlow(BaseModel):
+class SakhaResponseForASFlow(BaseModel):
     "Response template to follow"
 
     replyToUser: str = Field(description="Reply to be shown to user")
@@ -26,7 +26,7 @@ class FriennResponseForASFlow(BaseModel):
     )
 
 
-class FriennResponseForRemFlow(BaseModel):
+class SakhaResponseForRemFlow(BaseModel):
     "Response template to follow"
 
     replyToUser: str = Field(description="Reply to be shown to user")
@@ -35,7 +35,7 @@ class FriennResponseForRemFlow(BaseModel):
     )
 
 
-class FriennResponseForFUFlow(BaseModel):
+class SakhaResponseForFUFlow(BaseModel):
     "Response template to follow"
 
     replyToUser: str = Field(description="Reply to be shown to user")

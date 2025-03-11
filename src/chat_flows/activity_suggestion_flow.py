@@ -3,8 +3,8 @@ from langchain_core.messages import (AIMessage, HumanMessage, SystemMessage,
 
 from src.chat_flows.chat_flow import ChatFlow
 from src.managers.prompt_manager import (get_activity_suggestion_prompt,
-                                         get_frienn_char_prompt)
-from src.response_templates.frienn_template import FriennResponseForASFlow
+                                         get_sakha_char_prompt)
+from src.response_templates.sakha_template import SakhaResponseForASFlow
 from src.utils import get_current_time_ist
 
 
@@ -15,7 +15,7 @@ class ActivitySuggestionFlow(ChatFlow):
     ):
         if exchange == 0:
             chat_prompt_msgs = [
-                SystemMessage(get_frienn_char_prompt()),
+                SystemMessage(get_sakha_char_prompt()),
                 SystemMessage(f"User Info: {user_info}"),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
                 SystemMessage(
@@ -25,7 +25,7 @@ class ActivitySuggestionFlow(ChatFlow):
             ]
         else:
             chat_prompt_msgs = [
-                SystemMessage(get_frienn_char_prompt()),
+                SystemMessage(get_sakha_char_prompt()),
                 SystemMessage(get_activity_suggestion_prompt()),
                 SystemMessage(f"User Info: {user_info}"),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
@@ -36,7 +36,7 @@ class ActivitySuggestionFlow(ChatFlow):
             ]
 
         model_response = self.llm.with_structured_output(
-            FriennResponseForASFlow
+            SakhaResponseForASFlow
         ).invoke(chat_prompt_msgs)
 
         return model_response
