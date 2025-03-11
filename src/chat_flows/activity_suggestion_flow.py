@@ -11,22 +11,23 @@ from src.utils import get_current_time_ist
 class ActivitySuggestionFlow(ChatFlow):
 
     def generate_response(
-        self, exchange, user_input, conversation_history_pretty, preferred_activities
+        self, exchange, user_input, conversation_history_pretty, user_info
     ):
         if exchange == 0:
             chat_prompt_msgs = [
                 SystemMessage(get_frienn_char_prompt()),
+                SystemMessage(f"User Info: {user_info}"),
+                SystemMessage(f"Current time: {get_current_time_ist()}"),
                 SystemMessage(
                     "Introduce yourself briefly and naturally and check how the user is doing."
                 ),
-                SystemMessage(f"Current time: {get_current_time_ist()}"),
                 HumanMessage(user_input),
             ]
         else:
             chat_prompt_msgs = [
                 SystemMessage(get_frienn_char_prompt()),
                 SystemMessage(get_activity_suggestion_prompt()),
-                SystemMessage(f"Activities preferred by user: {preferred_activities}"),
+                SystemMessage(f"User Info: {user_info}"),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
                 SystemMessage(
                     f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
