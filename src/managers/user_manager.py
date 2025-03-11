@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Optional, Union
-from postgres_db_manager import PostgresDBManager  # Ensure correct import
+from src.managers.postgres_db_manager import PostgresDBManager 
 
 class UserManager:
     def __init__(self):
@@ -20,13 +20,13 @@ class UserManager:
             print(f"Error adding user: {e}")
             return ""
 
-    def get_user(self, user_id: str) -> Optional[dict]:
+    def get_user_info(self, user_id: str) -> Optional[dict]:
         """Fetches a user by ID, handling cases where the user is not found."""
         if not user_id:
             print("Error: Missing user ID")
             return None
 
-        query = "SELECT * FROM users WHERE user_id = %s;"
+        query = "SELECT user_id, name, age_range, preferred_activities FROM users WHERE user_id = %s;"
         result = self.db.execute(query, (user_id,), fetch=True)
 
         if result:
@@ -35,8 +35,26 @@ class UserManager:
                 "name": result[0][1],
                 "age_range": result[0][2],
                 "preferred_activities": result[0][3],
-                "created_at": result[0][4]
             }
+
+        print(f"User with ID {user_id} not found.")
+        return None
+
+    def get_user_session_count(self, user_id: str) -> Optional[dict]:
+        """Fetches a user by ID, handling cases where the user is not found."""
+        if not user_id:
+            print("Error: Missing user ID")
+            return None
+
+        query = "SELECT user_id, session_count FROM users WHERE user_id = %s;"
+        result = self.db.execute(query, (user_id,), fetch=True)
+
+        if result:
+            return {
+                "user_id": result[0][0],
+                "session_count": result[0][1],
+            }
+            
         print(f"User with ID {user_id} not found.")
         return None
 
@@ -95,36 +113,3 @@ class UserManager:
         except Exception as e:
             print(f"Error deleting user: {e}")
             return False
-
-
-# # Example Usage
-# if __name__ == "__main__":
-#     user_manager = UserManager()
-
-#     # Add a new user
-#     new_user_id = user_manager.add_user("John Doe", "30-40", ["Reading", "Traveling", "Cooking"])
-#     print(f"Added User ID: {new_user_id}")
-
-#     # Fetch a user
-#     user = user_manager.get_user(new_user_id)
-#     print("User Data:", user)
-
-#     # Handle missing or invalid user ID
-#     user_not_found = user_manager.get_user("invalid-id")
-#     print("Invalid User Lookup:", user_not_found)
-
-#     # Fetch all users
-#     users = user_manager.get_all_users()
-#     print("All Users:", users)
-
-#     # Update user activities
-#     updated = user_manager.update_user_activities(new_user_id, ["Cycling", "Gaming"])
-#     print(f"User activities updated: {updated}")
-
-#     # Attempt to delete a non-existent user
-#     deleted = user_manager.delete_user("invalid-id")
-#     print(f"Deleted invalid user: {deleted}")
-
-#     # Delete an actual user
-#     deleted_real = user_manager.delete_user(new_user_id)
-#     print(f"Deleted real user: {deleted_real}")

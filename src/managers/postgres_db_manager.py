@@ -43,9 +43,10 @@ class PostgresDBManager:
             CREATE TABLE IF NOT EXISTS reminders (
                 id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL,
+                thread_id TEXT NOT NULL,
                 activity TEXT NOT NULL,
-                hour int NOT NULL,
-                minute int NOT NULL,
+                hour INT NOT NULL,
+                minute INT NOT NULL,
                 duration INT NOT NULL,
                 send_reminder BOOLEAN DEFAULT TRUE,
                 send_followup BOOLEAN DEFAULT TRUE,
@@ -58,6 +59,7 @@ class PostgresDBManager:
             CREATE TABLE IF NOT EXISTS activity_feedback (
                 id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL,
+                thread_id TEXT NOT NULL,
                 activity TEXT NOT NULL,
                 is_completed BOOLEAN DEFAULT FALSE,
                 enjoyment_score INT CHECK (enjoyment_score BETWEEN 1 AND 5),
@@ -68,6 +70,7 @@ class PostgresDBManager:
             """
             CREATE TABLE IF NOT EXISTS users (
                 user_id TEXT PRIMARY KEY,
+                session_count INT DEFAULT 0,
                 name VARCHAR(100) NOT NULL,
                 age_range VARCHAR(20),
                 preferred_activities TEXT[],

@@ -10,3 +10,6 @@ black
 isort
 langgraph-checkpoint-postgres
 APScheduler
+fastapi 
+uvicorn
+streamlit
