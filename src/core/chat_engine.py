@@ -3,9 +3,9 @@ from langchain_core.messages import (AIMessage, HumanMessage, SystemMessage,
 
 from src.chat_flows.chat_flow_manager import ChatFlowManager
 from src.response_templates.conversation_state import ConversationState
-from src.response_templates.frienn_template import (FriennResponseForASFlow,
-                                                    FriennResponseForFUFlow,
-                                                    FriennResponseForRemFlow)
+from src.response_templates.sakha_template import (SakhaResponseForASFlow,
+                                                    SakhaResponseForFUFlow,
+                                                    SakhaResponseForRemFlow)
 from src.utils import (exchanges_pretty,
                        get_current_time_ist, get_current_time_ist_30min_lag)
 
@@ -31,7 +31,7 @@ class ChatEngine:
 
         model_response = self.response_manager.handle_response(user_id, raw_model_response)
 
-        print(f"Frienn:", model_response)
+        print(f"Sakha:", model_response)
 
         self.update_conversation_history(user_input, str(model_response))
         self.exchange += 1

@@ -7,9 +7,9 @@ from src.managers.reminder_manager import ReminderManager
 from src.response_templates.activity_reminder_config import \
     ActivityReminderConfig
 from src.response_templates.activity_feedback import ActivityFeedback
-from src.response_templates.frienn_template import (FriennResponseForASFlow,
-                                                    FriennResponseForFUFlow,
-                                                    FriennResponseForRemFlow)
+from src.response_templates.sakha_template import (SakhaResponseForASFlow,
+                                                    SakhaResponseForFUFlow,
+                                                    SakhaResponseForRemFlow)
 
 
 class ResponseManager:
@@ -25,16 +25,16 @@ class ResponseManager:
         """
         Handles different response flows based on the response type.
         """
-        if isinstance(response, FriennResponseForASFlow):
+        if isinstance(response, SakhaResponseForASFlow):
             self._handle_as_flow(user_id, response)
-        elif isinstance(response, FriennResponseForRemFlow):
+        elif isinstance(response, SakhaResponseForRemFlow):
             self._handle_rem_flow(user_id, response)
-        elif isinstance(response, FriennResponseForFUFlow):
+        elif isinstance(response, SakhaResponseForFUFlow):
             self._handle_fu_flow(user_id, response)
 
         return response.replyToUser
 
-    def _handle_as_flow(self, user_id, response: FriennResponseForASFlow):
+    def _handle_as_flow(self, user_id, response: SakhaResponseForASFlow):
         """
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
@@ -55,7 +55,7 @@ class ResponseManager:
                     True,  # response.reminder.send_followup
                 )
 
-    def _handle_fu_flow(self, user_id, response: FriennResponseForRemFlow):
+    def _handle_fu_flow(self, user_id, response: SakhaResponseForRemFlow):
         """
         Handles the Follow-Up Flow.
         Stores feedback when feedback collection is complete.
@@ -77,7 +77,7 @@ class ResponseManager:
             )
 
 
-    def _handle_rem_flow(self, user_id, response: FriennResponseForRemFlow):
+    def _handle_rem_flow(self, user_id, response: SakhaResponseForRemFlow):
         """
         Handles the Reminder Flow.
         Currently, it only determines whether to suggest alternatives.

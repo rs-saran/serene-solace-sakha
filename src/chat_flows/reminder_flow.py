@@ -3,22 +3,19 @@ from langchain_core.messages import (AIMessage, HumanMessage, SystemMessage,
 
 from src.chat_flows.chat_flow import ChatFlow
 from src.managers.prompt_manager import (get_activity_suggestion_prompt,
-                                         get_frienn_char_prompt)
-from src.response_templates.frienn_template import FriennResponseForRemFlow
+                                         get_sakha_char_prompt)
+from src.response_templates.sakha_template import SakhaResponseForRemFlow
 from src.utils import get_current_time_ist
 
 
 class ReminderFlow(ChatFlow):
-
-    def get_reminder_details(self):
-        return f"walking at {get_current_time_ist()}"
 
     def generate_response(
         self, exchange, user_input, conversation_history_pretty, user_info, activity_details
     ):
         if exchange == 0:
             chat_prompt_msgs = [
-                SystemMessage(get_frienn_char_prompt()),
+                SystemMessage(get_sakha_char_prompt()),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
                 SystemMessage(
                     f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
@@ -29,7 +26,7 @@ class ReminderFlow(ChatFlow):
             ]
         else:
             chat_prompt_msgs = [
-                SystemMessage(get_frienn_char_prompt()),
+                SystemMessage(get_sakha_char_prompt()),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
                 SystemMessage(
                     f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
@@ -41,7 +38,7 @@ class ReminderFlow(ChatFlow):
             ]
 
         model_response = self.llm.with_structured_output(
-            FriennResponseForRemFlow
+            SakhaResponseForRemFlow
         ).invoke(chat_prompt_msgs)
 
         return model_response

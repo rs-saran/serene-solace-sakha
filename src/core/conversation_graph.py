@@ -37,7 +37,7 @@ class ConversationGraph:
             "Supervisor", Supervisor(llm=self.llm).get_supervisor_decision
         )
         self.builder.add_node(
-            "Frienn",
+            "Sakha",
             ChatEngine(llm=self.llm, response_manager=self.response_manager).chat,
         )
         self.builder.add_node("crisisHandler", crisis_handler)
@@ -46,22 +46,22 @@ class ConversationGraph:
         """Define and add edges to the graph"""
         self.builder.add_edge(START, "Supervisor")
         self.builder.add_conditional_edges("Supervisor", self._determine_route)
-        self.builder.add_edge("Frienn", END)
+        self.builder.add_edge("Sakha", END)
         self.builder.add_edge("crisisHandler", END)
 
     def _determine_route(
         self, conversation_state: ConversationState
-    ) -> Literal["Frienn", "crisisHandler"]:
+    ) -> Literal["Sakha", "crisisHandler"]:
         """Determine the next route based on the supervisor response"""
         supervisor_response = conversation_state.get("supervisor_response")
         picked_route = supervisor_response.pickedRoute
 
         if picked_route == "continue_chat":
-            return "Frienn"
+            return "Sakha"
         elif picked_route == "crisis_helpline":
             return "crisisHandler"
         else:
-            return "Frienn"
+            return "Sakha"
 
     def compile(self):
         """Compile the final state graph with memory saver"""
