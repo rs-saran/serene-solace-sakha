@@ -10,14 +10,18 @@ import requests
 class ReminderManager:
     """Handles storing and scheduling reminders."""
 
-    def __init__(self, db_manager: PostgresDBManager):
+    def __init__(self, db_manager: PostgresDBManager, BASE_URL):
         self.db_manager = db_manager
-        # self.scheduler = BackgroundScheduler()
-        # self.scheduler.start()
-        # self._load_pending_reminders()
-
-    def _send_message(self, user_id, message):
-        print(f"[{datetime.now()}] Sending to {user_id}: {message}")
+        self.BASE_URL = BASE_URL
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.start()
+        self._load_pending_reminders()
+    
+    def _send_reminder(self,user_id, thread_id):
+        response = requests.post(f"{self.BASE_URL}/send-reminder/", json={"user_id": user_id, "thread_id": thread_id, "message": ""})
+    
+    def _send_follow_up(self,user_id, thread_id):
+        response = requests.post(f"{self.BASE_URL}/follow-up/", json={"user_id": user_id, "thread_id": thread_id, "message": ""})
 
     def _update_reminder_status(self, reminder_id, column):
         query = f"UPDATE reminders SET {column} = TRUE WHERE id = %s"
@@ -27,6 +31,7 @@ class ReminderManager:
         self,
         reminder_id,
         user_id,
+        thread_id,
         activity,
         hour,
         minute,
@@ -39,7 +44,7 @@ class ReminderManager:
                 self._execute_reminder,
                 "date",
                 run_date=start_time,
-                args=[reminder_id, user_id, f"Reminder: Time for {activity}!"],
+                args=[reminder_id, user_id, thread_id, f"Reminder: Time for {activity}!"],
                 id=f"reminder_{reminder_id}",
             )
 
@@ -49,23 +54,23 @@ class ReminderManager:
                 self._execute_followup,
                 "date",
                 run_date=followup_time,
-                args=[reminder_id, user_id, f"Follow-up: How was {activity}?"],
+                args=[reminder_id, user_id, thread_id, f"Follow-up: How was {activity}?"],
                 id=f"followup_{reminder_id}",
             )
 
-    def _execute_reminder(self, reminder_id, user_id, message):
-        self._send_message(user_id, message)
+    def _execute_reminder(self, reminder_id, user_id, thread_id, message):
+        self._send_reminder(user_id, thread_id, message)
         self._update_reminder_status(reminder_id, "is_reminder_sent")
 
-    def _execute_followup(self, reminder_id, user_id, message):
-        self._send_message(user_id, message)
+    def _execute_followup(self, reminder_id, user_id, thread_id, message):
+        self._send_follow_up(user_id, thread_id, message)
         self._update_reminder_status(reminder_id, "is_followup_sent")
 
     def _load_pending_reminders(self):
         query = """
         SELECT id, user_id, activity, hour, minute, duration, send_reminder, send_followup 
         FROM reminders 
-        WHERE is_reminder_sent = FALSE OR is_followup_sent = FALSE
+        WHERE (send_reminder = TRUE and is_reminder_sent = FALSE) OR (send_followup = TRUE and is_followup_sent = FALSE)
         """
         rows = self.db_manager.execute(query, fetch=True)
         for row in rows:
@@ -91,5 +96,5 @@ class ReminderManager:
             (user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup),
             fetch=True,
         )[0][0]
-        # self._schedule_reminder(reminder_id, user_id, activity, start_time, duration, send_reminder, send_followup)
+        self._schedule_reminder(reminder_id, user_id, thread_id, activity, start_time, duration, send_reminder, send_followup)
         print(f"Reminder for {activity} at {hour}:{minute} for {duration} mins is scheduled!")
