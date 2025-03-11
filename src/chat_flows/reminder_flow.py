@@ -14,7 +14,7 @@ class ReminderFlow(ChatFlow):
         return f"walking at {get_current_time_ist()}"
 
     def generate_response(
-        self, exchange, user_input, conversation_history_pretty, preferred_activities
+        self, exchange, user_input, conversation_history_pretty, user_info, activity_details
     ):
         if exchange == 0:
             chat_prompt_msgs = [
@@ -24,7 +24,7 @@ class ReminderFlow(ChatFlow):
                     f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
                 ),
                 SystemMessage(
-                    f"Previously you set a reminder for {self.get_reminder_details()}. It’s time! Encourage the user to start their activity with enthusiasm and motivation."
+                    f"Previously you set a reminder for {activity_details}. It’s time! Encourage the user to start their activity with enthusiasm and motivation."
                 ),
             ]
         else:
@@ -35,7 +35,7 @@ class ReminderFlow(ChatFlow):
                     f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
                 ),
                 SystemMessage(
-                    f"Reminder details: {self.get_reminder_details()}. Motivate the user to complete the activity. If they seem reluctant, suggest small fun modifications to make it more enjoyable or alternatives else end the conversation."
+                    f"Reminder details: {activity_details}. Motivate the user to complete the activity. If they seem reluctant, suggest small fun modifications to make it more enjoyable or alternatives else end the conversation."
                 ),
                 HumanMessage(user_input),
             ]

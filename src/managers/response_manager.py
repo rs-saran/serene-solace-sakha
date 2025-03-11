@@ -21,20 +21,20 @@ class ResponseManager:
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
 
-    def handle_response(self, response):
+    def handle_response(self, user_id, response):
         """
         Handles different response flows based on the response type.
         """
         if isinstance(response, FriennResponseForASFlow):
-            self._handle_as_flow(response)
+            self._handle_as_flow(user_id, response)
         elif isinstance(response, FriennResponseForRemFlow):
-            self._handle_rem_flow(response)
+            self._handle_rem_flow(user_id, response)
         elif isinstance(response, FriennResponseForFUFlow):
-            self._handle_fu_flow(response)
+            self._handle_fu_flow(user_id, response)
 
         return response.replyToUser
 
-    def _handle_as_flow(self, response):
+    def _handle_as_flow(self, user_id, response: FriennResponseForASFlow):
         """
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
@@ -46,16 +46,16 @@ class ResponseManager:
         ):
             if response.reminder:
                 self.reminder_manager.add_reminder(
-                    "dev-user-test",
+                    user_id,
                     response.reminder.activity,
                     response.reminder.hour,
-                    response.remider.minute,
+                    response.reminder.minute,
                     response.reminder.duration,
                     True,  # response.reminder.send_reminder,
                     True,  # response.reminder.send_followup
                 )
 
-    def _handle_fu_flow(self, response):
+    def _handle_fu_flow(self, user_id, response: FriennResponseForRemFlow):
         """
         Handles the Follow-Up Flow.
         Stores feedback when feedback collection is complete.
@@ -68,7 +68,7 @@ class ResponseManager:
             self.db_manager.execute(
                 query,
                 (
-                    "dev-user-test",
+                    user_id,
                     response.activityFeedback.activity,
                     response.activityFeedback.is_completed,
                     response.activityFeedback.enjoyment_score,
@@ -77,7 +77,7 @@ class ResponseManager:
             )
 
 
-    def _handle_rem_flow(self, response: FriennResponseForRemFlow):
+    def _handle_rem_flow(self, user_id, response: FriennResponseForRemFlow):
         """
         Handles the Reminder Flow.
         Currently, it only determines whether to suggest alternatives.

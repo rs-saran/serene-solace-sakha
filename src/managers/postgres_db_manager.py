@@ -65,6 +65,15 @@ class PostgresDBManager:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """,
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                user_id TEXT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                age_range VARCHAR(20),
+                preferred_activities TEXT[],
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """,
         ]
         for query in queries:
             self.execute(query)

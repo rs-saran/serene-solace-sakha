@@ -6,7 +6,7 @@ from src.response_templates.conversation_state import ConversationState
 from src.response_templates.frienn_template import (FriennResponseForASFlow,
                                                     FriennResponseForFUFlow,
                                                     FriennResponseForRemFlow)
-from src.utils import (exchanges_pretty, fetch_user_preferences,
+from src.utils import (exchanges_pretty,
                        get_current_time_ist, get_current_time_ist_30min_lag)
 
 
@@ -19,17 +19,17 @@ class ChatEngine:
         self.chat_flow_manager = ChatFlowManager(llm)
         self.response_manager = response_manager
 
-    def generate_response(self, user_input, preferred_activities):
+    def generate_response(self, user_input, user_id, thread_id, user_info, activity_details):
 
         conversation_history_pretty = exchanges_pretty(self.conversation_history)
         print("You:", user_input)
 
         chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
         raw_model_response = chat_flow.generate_response(
-            self.exchange, user_input, conversation_history_pretty, preferred_activities
+            self.exchange, user_input, conversation_history_pretty, user_info, activity_details
         )
 
-        model_response = self.response_manager.handle_response(raw_model_response)
+        model_response = self.response_manager.handle_response(user_id, raw_model_response)
 
         print(f"Frienn:", model_response)
 
@@ -42,14 +42,23 @@ class ChatEngine:
 
     def chat(self, conversation_state: ConversationState):
         user_input = conversation_state["user_input"]
-        preferred_activities = conversation_state.get(
-            "preferred_activities", ["no preferences provided"]
+        user_id = conversation_state.get("user_id","dummy_user_id")
+        thread_id = conversation_state.get("thread_id","dummy_thread_id")
+        # preferred_activities = conversation_state.get(
+        #     "preferred_activities", ["no preferences provided"]
+        # )
+        user_info = conversation_state.get(
+            "user_info", "no user_info"
+        )
+        activity_details = conversation_state.get(
+            "activity_details", None
         )
         self.conversation_history = conversation_state.get("conversation_history", [])
         self.exchange = conversation_state.get("exchange", 0)
         self.flow = conversation_state.get("flow", "activity_suggestion")
 
-        self.generate_response(user_input, preferred_activities)
+        # self.generate_response(user_input, user_id, thread_id, preferred_activities)
+        self.generate_response(user_input, user_id, thread_id, user_info, activity_details)
 
         return {
             "conversation_history": self.conversation_history,
