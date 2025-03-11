@@ -74,3 +74,8 @@ class ConversationProcessor:
         """Process the user input through the conversation graph"""
         config = {"configurable": {"thread_id": thread_id, "user_id": user_id}}
         self.conversation_graph.invoke({"user_input": user_input}, config)
+
+        cs = self.conversation_graph.get_state(config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}})
+        to_user = cs.values.get('to_user', "I'm sorry, I didn't quite understand that.")
+
+        return to_user

@@ -20,12 +20,12 @@ app = FastAPI()
 
 db_manager = PostgresDBManager()
 checkpointer = PostgresCheckpointerManager(db_manager).get_checkpointer()
-reminder_manager = ReminderManager(db_manager)
+reminder_manager = ReminderManager(db_manager, BASE_URL = "http://127.0.0.1:8000")
 response_manager = ResponseManager(
-    reminder_manager=reminder_manager, db_manager=db_manager
+    reminder_manager=reminder_manager, db_manager=db_manager, 
 )
 
-conversation_graph = ConversationGraph(llm=get_llm(), response_manager, checkpointer).compile()
+conversation_graph = ConversationGraph(llm=get_llm(), response_manager=response_manager, checkpointer=checkpointer).compile()
 processor = ConversationProcessor(conversation_graph)
 
 user_manager = UserManager()
@@ -58,21 +58,13 @@ async def chat(user_input: UserInput):
             # Default to activity suggestion if new user
             conversation_graph.update_state(
                 config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}},
-                values={'user_info': user_manager.get_user(user_input.user_id), 'flow': 'activity_suggestion'}
+                values={'user_info': user_manager.get_user_info(user_input.user_id), 'flow': 'activity_suggestion'}
             )
             active_sessions[user_input.thread_id] = True  # Mark session as active
 
         # Process user message
-        processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
-
-        # Retrieve the current state for the conversation
-        cs = conversation_graph.get_state(config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}})
-
-        # Get the response from the state (to_user)
-        to_user = cs.values.get('to_user', "I'm sorry, I didn't quite understand that.")
-
-        # Return the response to the user
-        return {"response": to_user}
+        response = processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
+        return {"response": response}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -86,13 +78,14 @@ async def send_reminder(user_input: UserInput):
             values={'flow': 'reminder', 'exchange': 0}
         )
         sys_input = "send a reminder to user for activity"
-        response = processor.process_input("", thread_id=user_input.thread_id, user_id=user_input.user_id)
+        # Process user message
+        response = processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
         return {"response": response}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/collect-feedback/")
+@app.post("/follow-up/")
 async def collect_feedback(user_input: UserInput):
     """Starts the follow-up flow for activity feedback."""
     try:
@@ -101,8 +94,11 @@ async def collect_feedback(user_input: UserInput):
             values={'flow': 'follow-up', 'exchange': 0}
         )
         sys_input = "it's about time user completes their activity, collect feedback"
-        response = processor.process_input("", thread_id=user_input.thread_id, user_id=user_input.user_id)
+        
+        # Process user message
+        response = processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
         return {"response": response}
+
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
