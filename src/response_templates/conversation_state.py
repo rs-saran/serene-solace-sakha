@@ -1,5 +1,4 @@
-from typing import Literal, TypedDict
-
+from typing import Literal, TypedDict, Optional 
 from langchain_core.messages import AnyMessage
 
 from src.response_templates.supervisor_response import SupervisorResponse
@@ -16,4 +15,5 @@ class ConversationState(TypedDict):
     user_input: str
     supervisor_response: SupervisorResponse
     flow: str
-    activity_details: dict  
+    activity_details: dict
+    to_user: str

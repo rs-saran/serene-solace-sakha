@@ -21,20 +21,26 @@ class ResponseManager:
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
 
-    def handle_response(self, user_id, response):
+    def _format_response(self, reply, activity_details=None):
+        """Helper function to create a standardized response format."""
+        return {"reply": reply, "activity_details": activity_details}
+
+    def handle_response(self, user_id, thread_id, response):
         """
         Handles different response flows based on the response type.
         """
+        activity_details = None
+
         if isinstance(response, SakhaResponseForASFlow):
-            self._handle_as_flow(user_id, response)
+            activity_details = self._handle_as_flow(user_id, thread_id, response)
         elif isinstance(response, SakhaResponseForRemFlow):
-            self._handle_rem_flow(user_id, response)
+            self._handle_rem_flow(user_id, thread_id, response)
         elif isinstance(response, SakhaResponseForFUFlow):
-            self._handle_fu_flow(user_id, response)
+            self._handle_fu_flow(user_id, thread_id, response)
 
-        return response.replyToUser
+        return self._format_response(response.replyToUser, activity_details)
 
-    def _handle_as_flow(self, user_id, response: SakhaResponseForASFlow):
+    def _handle_as_flow(self, user_id, thread_id, response: SakhaResponseForASFlow):
         """
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
@@ -47,6 +53,7 @@ class ResponseManager:
             if response.reminder:
                 self.reminder_manager.add_reminder(
                     user_id,
+                    thread_id, 
                     response.reminder.activity,
                     response.reminder.hour,
                     response.reminder.minute,
@@ -55,20 +62,27 @@ class ResponseManager:
                     True,  # response.reminder.send_followup
                 )
 
-    def _handle_fu_flow(self, user_id, response: SakhaResponseForRemFlow):
+                activity_details = {'activity':response.reminder.activity, 'time': f'{response.reminder.hour}:{response.reminder.minute}', 'duration': response.reminder.duration}
+
+                return activity_details
+        
+        return None
+
+    def _handle_fu_flow(self, user_id, thread_id, response: SakhaResponseForRemFlow):
         """
         Handles the Follow-Up Flow.
         Stores feedback when feedback collection is complete.
         """
         if response.isFeedbackCollectionComplete and response.activityFeedback:
             query = """
-            INSERT INTO activity_feedback (user_id, activity, is_completed, enjoyment_score, reason_skipped) 
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO activity_feedback (user_id, thread_id, activity, is_completed, enjoyment_score, reason_skipped) 
+            VALUES (%s, %s, %s, %s, %s, %s)
             """
             self.db_manager.execute(
                 query,
                 (
                     user_id,
+                    thread_id, 
                     response.activityFeedback.activity,
                     response.activityFeedback.is_completed,
                     response.activityFeedback.enjoyment_score,
@@ -77,7 +91,7 @@ class ResponseManager:
             )
 
 
-    def _handle_rem_flow(self, user_id, response: SakhaResponseForRemFlow):
+    def _handle_rem_flow(self, user_id, thread_id, response: SakhaResponseForRemFlow):
         """
         Handles the Reminder Flow.
         Currently, it only determines whether to suggest alternatives.

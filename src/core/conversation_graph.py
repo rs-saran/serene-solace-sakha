@@ -14,18 +14,15 @@ from src.managers.reminder_manager import ReminderManager
 from src.managers.response_manager import ResponseManager
 from src.response_templates.conversation_state import ConversationState
 from src.response_templates.supervisor_response import SupervisorResponse
+from langgraph.checkpoint.postgres import PostgresSaver
 
 
 # Graph Builder Class to manage the state graph and routing
 class ConversationGraph:
-    def __init__(self, llm):
+    def __init__(self, llm, response_manager: ResponseManager, checkpointer: PostgresSaver):
         self.llm = llm
-        self.db_manager = PostgresDBManager()
-        self.checkpointer = PostgresCheckpointerManager(self.db_manager).get_checkpointer()
-        self.reminder_manager = ReminderManager(self.db_manager)
-        self.response_manager = ResponseManager(
-            reminder_manager=self.reminder_manager, db_manager=self.db_manager
-        )
+        self.checkpointer = checkpointer
+        self.response_manager = response_manager
         self.builder = StateGraph(ConversationState)
         self._add_nodes()
         self._add_edges()
@@ -66,6 +63,7 @@ class ConversationGraph:
     def compile(self):
         """Compile the final state graph with memory saver"""
         return self.builder.compile(checkpointer=self.checkpointer)
+
 
 
 class ConversationProcessor:

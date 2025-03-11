@@ -4,6 +4,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from src.managers.postgres_db_manager import PostgresDBManager
 
+import requests
+
 
 class ReminderManager:
     """Handles storing and scheduling reminders."""
@@ -72,6 +74,7 @@ class ReminderManager:
     def add_reminder(
         self,
         user_id,
+        thread_id, 
         activity,
         hour,
         minute,
@@ -80,13 +83,13 @@ class ReminderManager:
         send_followup=True,
     ):
         query = """
-        INSERT INTO reminders (user_id, activity, hour, minute, duration, send_reminder, send_followup) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO reminders (user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
         """
         reminder_id = self.db_manager.execute(
             query,
-            (user_id, activity, hour, minute, duration, send_reminder, send_followup),
+            (user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup),
             fetch=True,
         )[0][0]
         # self._schedule_reminder(reminder_id, user_id, activity, start_time, duration, send_reminder, send_followup)
-        print(f"Reminder for {activity} scheduled!")
+        print(f"Reminder for {activity} at {hour}:{minute} for {duration} mins is scheduled!")
