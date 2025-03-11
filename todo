@@ -1,3 +1,2 @@
 1. Implement cross thread semantic memory.
-2. Thread Management for the user. 
-3. Reminder and followup backends.
+2. Implement logging and error handling
