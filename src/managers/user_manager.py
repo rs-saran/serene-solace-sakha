@@ -18,7 +18,7 @@ class UserManager:
             return user_id  # Return the generated user ID
         except Exception as e:
             print(f"Error adding user: {e}")
-            return ""
+            return None
 
     def get_user_info(self, user_id: str) -> Optional[dict]:
         """Fetches a user by ID, handling cases where the user is not found."""
