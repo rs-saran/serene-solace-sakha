@@ -12,6 +12,8 @@ from src.managers.reminder_manager import ReminderManager
 from src.managers.response_manager import ResponseManager
 import signal
 import uvicorn
+from pydantic import BaseModel
+from typing import List
 
 
 
@@ -124,6 +126,18 @@ async def get_user_session_count(user_id: str):
         raise HTTPException(status_code=404, detail="User not found")
     return user_session_info
 
+class UserCreateRequest(BaseModel):
+    name: str
+    age_range: str
+    preferred_activities: List[str]  # Ensure it's a list
+
+@app.post("/users/add")
+async def add_user(user: UserCreateRequest):
+    """Adds a new user."""
+    user_id = user_manager.add_user(user.name, user.age_range, user.preferred_activities)
+    if not user_id:
+        raise HTTPException(status_code=500, detail="Failed to add user")
+    return {"user_id": user_id}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
