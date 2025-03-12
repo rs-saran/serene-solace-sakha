@@ -5,7 +5,7 @@ class ActivityReminderConfig(BaseModel):
     """Activity Reminder to be set, updated, deleted"""
 
     reminder_action: str = Field(
-        description="ENUM: `set`: to set a reminder for later, `update`:to update the remider if one is already set, `delete`:to delete the reminder"
+        description="ENUM: `set`: to set a reminder for later, `update`:to update the reminder if one is already set, `delete`:to delete the reminder"
     )
     activity: str = Field(description="The activity picked to improve user's mood.")
     hour: int = Field(

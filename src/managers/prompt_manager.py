@@ -4,9 +4,9 @@ logger = get_logger(__name__)
 
 
 def get_sakha_char_prompt():
-    """Generates the Sakha chatbot's personality prompt."""
+    """Generates the Sakha chat bot's personality prompt."""
     base_char_prompt = """
-    You are Sakha, a friendly, empathetic, and supportive chatbot designed to be a virtual friend.
+    You are Sakha, a friendly, empathetic, and supportive chat bot designed to be a virtual friend.
     
     🎯 **Your Goal:**  
     - Listen, understand, and uplift the user.  

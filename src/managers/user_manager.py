@@ -1,8 +1,8 @@
 import uuid
-from typing import List, Optional, Dict
-from src.managers.postgres_db_manager import PostgresDBManager
+from typing import Dict, List, Optional
 
 from src.logger import get_logger
+from src.managers.postgres_db_manager import PostgresDBManager
 
 logger = get_logger(__name__)
 
@@ -12,7 +12,9 @@ class UserManager:
         """Initialize the UserManager with a database connection."""
         self.db = PostgresDBManager()
 
-    def add_user(self, name: str, age_range: str, preferred_activities: List[str]) -> Optional[str]:
+    def add_user(
+        self, name: str, age_range: str, preferred_activities: List[str]
+    ) -> Optional[str]:
         """Creates a new user with a unique UUID and stores it in the database."""
         user_id = str(uuid.uuid4())  # Generate a random UUID
         query = """

@@ -1,23 +1,36 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
 from src.chat_flows.chat_flow import ChatFlow
+from src.logger import get_logger
 from src.managers.prompt_manager import get_sakha_char_prompt
 from src.response_templates.sakha_template import SakhaResponseForRemFlow
 from src.utils import get_current_time_ist
-from src.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class ReminderFlow(ChatFlow):
 
-    def generate_response(self, exchange, user_input, conversation_history_pretty, user_info, activity_details):
+    def generate_response(
+        self,
+        exchange,
+        user_input,
+        conversation_history_pretty,
+        user_info,
+        activity_details,
+    ):
         try:
-            logger.info(f"Generating reminder response for activity: {activity_details}")
+            logger.info(
+                f"Generating reminder response for activity: {activity_details}"
+            )
 
             if exchange == 0:
                 chat_prompt_msgs = [
                     SystemMessage(get_sakha_char_prompt()),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
-                    SystemMessage(f"Conversation History:\n{conversation_history_pretty}"),
+                    SystemMessage(
+                        f"Conversation History:\n{conversation_history_pretty}"
+                    ),
                     SystemMessage(
                         f"Previously, you set a reminder for {activity_details}. It’s time! "
                         f"Encourage the user to start their activity with enthusiasm and motivation."
@@ -27,7 +40,9 @@ class ReminderFlow(ChatFlow):
                 chat_prompt_msgs = [
                     SystemMessage(get_sakha_char_prompt()),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
-                    SystemMessage(f"Conversation History:\n{conversation_history_pretty}"),
+                    SystemMessage(
+                        f"Conversation History:\n{conversation_history_pretty}"
+                    ),
                     SystemMessage(
                         f"Reminder details: {activity_details}. Motivate the user to complete the activity. "
                         f"If they seem reluctant, suggest small fun modifications to make it more enjoyable "
@@ -36,7 +51,9 @@ class ReminderFlow(ChatFlow):
                     HumanMessage(user_input),
                 ]
 
-            model_response = self.llm.with_structured_output(SakhaResponseForRemFlow).invoke(chat_prompt_msgs)
+            model_response = self.llm.with_structured_output(
+                SakhaResponseForRemFlow
+            ).invoke(chat_prompt_msgs)
             logger.info("Successfully generated reminder response.")
             return model_response
 

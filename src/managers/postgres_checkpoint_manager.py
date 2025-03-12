@@ -1,6 +1,7 @@
 from langgraph.checkpoint.postgres import PostgresSaver
-from src.managers.postgres_db_manager import PostgresDBManager
+
 from src.logger import get_logger
+from src.managers.postgres_db_manager import PostgresDBManager
 
 logger = get_logger(__name__)
 

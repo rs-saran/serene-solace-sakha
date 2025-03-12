@@ -21,7 +21,7 @@ def get_current_time_ist_30min_lag():
 
 
 def exchanges_pretty(exchanges, summary=False):
-    l = []
+    li = []
     c = "assistant"
     if summary:
         c = "assistant"
@@ -30,8 +30,8 @@ def exchanges_pretty(exchanges, summary=False):
             e = f"{c}: {exc.content}"
         else:
             e = f"{exc.type}: {exc.content}"
-        l.append(e)
-    return "\n".join(l)
+        li.append(e)
+    return "\n".join(li)
 
 
 def display_graph(graph):
@@ -49,8 +49,6 @@ def get_llm():
 
     return llm
 
-    return ["jogging", "movies", "meditation"]
-    
 
 def print_directory_structure(path, indent=0):
     # Check if the given path exists
