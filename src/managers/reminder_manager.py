@@ -68,16 +68,20 @@ class ReminderManager:
     ):
         """Schedules reminders and follow-ups."""
         ist = pytz.timezone("Asia/Kolkata")
+        utc = pytz.utc  # APScheduler uses UTC
         now_ist = datetime.now(ist)
-        start_time = datetime(
-            now_ist.year, now_ist.month, now_ist.day, hour, minute, tzinfo=ist
-        )
 
-        if send_reminder and start_time > now_ist:
+        start_time_ist = ist.localize(datetime(now_ist.year, now_ist.month, now_ist.day, hour, minute))
+        start_time_utc = start_time_ist.astimezone(utc)  # Convert IST to UTC
+
+        logger.info(f"Scheduling Reminder: IST={start_time_ist}, UTC={start_time_utc}")
+
+
+        if send_reminder and start_time_ist > now_ist:
             self.scheduler.add_job(
                 self._execute_reminder,
                 "date",
-                run_date=start_time,
+                run_date=start_time_utc,
                 args=[
                     reminder_id,
                     user_id,
@@ -89,7 +93,7 @@ class ReminderManager:
             logger.info(f"Scheduled reminder for {activity} at {hour}:{minute} IST.")
 
         if send_followup:
-            followup_time = start_time + timedelta(minutes=duration)
+            followup_time = start_time_utc + timedelta(minutes=duration)
             if followup_time > now_ist:
                 self.scheduler.add_job(
                     self._execute_followup,
@@ -192,3 +196,15 @@ class ReminderManager:
             logger.error(f"Error adding reminder: {e}", exc_info=True)
 
         return None
+
+    def list_scheduled_jobs(self):
+        """Returns a list of all scheduled jobs."""
+        jobs = self.scheduler.get_jobs()
+        job_list = []
+        for job in jobs:
+            job_list.append({
+                "id": job.id,
+                "next_run_time": str(job.next_run_time),
+                "args": job.args
+            })
+        return job_list

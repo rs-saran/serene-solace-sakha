@@ -1,2 +1,9 @@
+P0:
+1. Capture reminder and follow up updates in streamlit ui
+2. Improve error handling for followup responses
+3. Implement Session Management and clean up.
+
+
+-----------
+P2:
 1. Implement cross thread semantic memory.
-2. Implement logging and error handling

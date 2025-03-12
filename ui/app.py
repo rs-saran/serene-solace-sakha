@@ -42,6 +42,13 @@ def get_chat_response(user_id, thread_id, message):
     return "Error"
 
 
+def get_scheduled_reminders():
+    response = requests.get(f"{BASE_URL}/scheduled-reminders")
+    if response.status_code == 200:
+        return response.json()
+    return []
+
+
 def response_generator(response):
     for word in response.split():
         yield word + " "
@@ -53,8 +60,8 @@ st.title("Chat with Sakha")
 
 # Sidebar for user actions
 with st.sidebar:
-    st.header("User Management")
-    action = st.radio("Choose an action:", ["Fetch User Info", "Add New User"])
+    st.header("Utils")
+    action = st.radio("Choose an action:", ["Fetch User Info", "Add New User", "Check Scheduled jobs"])
 
     if action == "Fetch User Info":
         fetch_user_id = st.text_input("Enter User ID:")
@@ -77,6 +84,14 @@ with st.sidebar:
                 st.success(f"User added successfully! User ID: {user_id}")
             else:
                 st.error("Failed to add user.")
+
+    elif action == "Check Scheduled jobs":
+        if st.button("View Scheduled Reminders"):
+            jobs = get_scheduled_reminders()
+            if jobs:
+                st.json(jobs)
+            else:
+                st.error("No scheduled reminders found.")
 
 # Chat UI
 

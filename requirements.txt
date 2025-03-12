@@ -13,3 +13,4 @@ APScheduler
 fastapi 
 uvicorn
 streamlit
+colorama
