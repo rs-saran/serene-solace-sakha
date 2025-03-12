@@ -1,11 +1,8 @@
-import logging
+from src.logger import logger
 from src.chat_flows.activity_suggestion_flow import ActivitySuggestionFlow
 from src.chat_flows.follow_up_flow import FollowUpFlow
 from src.chat_flows.reminder_flow import ReminderFlow
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
 
 class ChatFlowManager:
     def __init__(self, llm):

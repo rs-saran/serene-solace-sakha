@@ -1,10 +1,6 @@
-import logging
 from langgraph.checkpoint.postgres import PostgresSaver
 from src.managers.postgres_db_manager import PostgresDBManager
-
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 class PostgresCheckpointerManager:

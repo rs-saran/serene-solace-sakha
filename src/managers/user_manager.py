@@ -1,11 +1,8 @@
 import uuid
-import logging
 from typing import List, Optional, Dict
 from src.managers.postgres_db_manager import PostgresDBManager
 
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 class UserManager:

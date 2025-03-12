@@ -1,10 +1,6 @@
-import logging
 import psycopg
 from psycopg_pool import ConnectionPool
-
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 class PostgresDBManager:

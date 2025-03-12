@@ -1,8 +1,4 @@
-import logging
-
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 def get_sakha_char_prompt():

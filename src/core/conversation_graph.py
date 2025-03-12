@@ -1,4 +1,3 @@
-import logging
 from typing import Literal
 
 from langgraph.graph import END, START, StateGraph
@@ -9,10 +8,7 @@ from src.core.crisis_handler import crisis_handler
 from src.core.supervisor import Supervisor
 from src.managers.response_manager import ResponseManager
 from src.response_templates.conversation_state import ConversationState
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+from src.logger import logger
 
 class ConversationGraph:
     def __init__(self, llm, response_manager: ResponseManager, checkpointer: PostgresSaver):

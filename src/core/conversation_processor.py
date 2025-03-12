@@ -1,9 +1,5 @@
-import logging
 from langgraph.graph import StateGraph
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+from src.logger import logger
 
 class ConversationProcessor:
     def __init__(self, conversation_graph: StateGraph):
