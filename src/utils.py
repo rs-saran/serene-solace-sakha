@@ -49,10 +49,8 @@ def get_llm():
 
     return llm
 
-
-def fetch_user_preferences():
     return ["jogging", "movies", "meditation"]
-
+    
 
 def print_directory_structure(path, indent=0):
     # Check if the given path exists
