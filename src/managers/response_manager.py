@@ -8,7 +8,9 @@ from src.response_templates.sakha_template import (
     SakhaResponseForFUFlow,
     SakhaResponseForRemFlow,
 )
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class ResponseManager:

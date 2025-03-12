@@ -1,6 +1,8 @@
 import psycopg
 from psycopg_pool import ConnectionPool
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class PostgresDBManager:

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 class ChatFlow(ABC):
     def __init__(self, llm):

@@ -8,7 +8,9 @@ from src.core.crisis_handler import crisis_handler
 from src.core.supervisor import Supervisor
 from src.managers.response_manager import ResponseManager
 from src.response_templates.conversation_state import ConversationState
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 class ConversationGraph:
     def __init__(self, llm, response_manager: ResponseManager, checkpointer: PostgresSaver):

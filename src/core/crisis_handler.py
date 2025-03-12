@@ -1,4 +1,6 @@
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 def crisis_handler():
     """Handles crisis situations by providing an emergency helpline with logging."""
