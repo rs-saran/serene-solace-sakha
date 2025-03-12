@@ -1,4 +1,3 @@
-import logging
 from pydantic import BaseModel
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
@@ -9,10 +8,7 @@ from src.response_templates.sakha_template import (
     SakhaResponseForFUFlow,
     SakhaResponseForRemFlow,
 )
-
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 class ResponseManager:

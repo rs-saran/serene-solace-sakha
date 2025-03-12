@@ -1,13 +1,10 @@
-import logging
+
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from src.chat_flows.chat_flow import ChatFlow
 from src.managers.prompt_manager import get_activity_suggestion_prompt, get_sakha_char_prompt
 from src.response_templates.sakha_template import SakhaResponseForFUFlow
 from src.utils import get_current_time_ist
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+from src.logger import logger
 
 class FollowUpFlow(ChatFlow):
 

@@ -3,10 +3,7 @@ from typing import Dict
 from src.response_templates.conversation_state import ConversationState
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.utils import get_llm
-
-# Set up logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+from src.logger import logger
 
 
 class Supervisor:
