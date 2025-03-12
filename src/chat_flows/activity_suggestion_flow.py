@@ -1,9 +1,12 @@
-from src.logger import logger
 from langchain_core.messages import (AIMessage, HumanMessage, SystemMessage)
 from src.chat_flows.chat_flow import ChatFlow
 from src.managers.prompt_manager import (get_activity_suggestion_prompt, get_sakha_char_prompt)
 from src.response_templates.sakha_template import SakhaResponseForASFlow
 from src.utils import get_current_time_ist
+
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class ActivitySuggestionFlow(ChatFlow):
@@ -34,7 +37,7 @@ class ActivitySuggestionFlow(ChatFlow):
 
             model_response = self.llm.with_structured_output(SakhaResponseForASFlow).invoke(chat_prompt_msgs)
             
-            logger.info("Successfully generated response from LLM.")
+            logger.info("Successfully generated response in AS Flow")
             return model_response
         
         except Exception as e:

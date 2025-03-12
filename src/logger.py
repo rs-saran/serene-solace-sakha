@@ -1,10 +1,11 @@
 import logging
 
-# Configure logging once in a central place
+# Configure logging once globally
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-# Create a logger instance
-logger = logging.getLogger(__name__)
+def get_logger(name: str):
+    """Returns a logger with the given module name."""
+    return logging.getLogger(name)

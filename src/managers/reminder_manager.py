@@ -3,7 +3,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import pytz
 from src.managers.postgres_db_manager import PostgresDBManager
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class ReminderManager:

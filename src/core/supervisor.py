@@ -3,7 +3,9 @@ from typing import Dict
 from src.response_templates.conversation_state import ConversationState
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.utils import get_llm
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Supervisor:

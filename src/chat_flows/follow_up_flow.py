@@ -4,7 +4,9 @@ from src.chat_flows.chat_flow import ChatFlow
 from src.managers.prompt_manager import get_activity_suggestion_prompt, get_sakha_char_prompt
 from src.response_templates.sakha_template import SakhaResponseForFUFlow
 from src.utils import get_current_time_ist
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 class FollowUpFlow(ChatFlow):
 

@@ -2,7 +2,9 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from src.chat_flows.chat_flow_manager import ChatFlowManager
 from src.response_templates.conversation_state import ConversationState
 from src.utils import exchanges_pretty, get_current_time_ist
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 class ChatEngine:
     def __init__(self, llm, response_manager):

@@ -1,5 +1,7 @@
 from langgraph.graph import StateGraph
-from src.logger import logger
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 class ConversationProcessor:
     def __init__(self, conversation_graph: StateGraph):
