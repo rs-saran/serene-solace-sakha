@@ -1,12 +1,18 @@
-from typing import Dict, List
-
+import logging
+from typing import Dict
 from src.response_templates.conversation_state import ConversationState
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.utils import get_llm
 
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 class Supervisor:
     def __init__(self, llm):
+        if llm is None:
+            raise ValueError("LLM instance is required for Supervisor.")
         self.llm = llm.with_structured_output(SupervisorResponse)
 
     def get_supervisor_prompt(
@@ -42,22 +48,29 @@ class Supervisor:
 
     def get_supervisor_decision(self, conversation_state: ConversationState) -> Dict:
         """Process the conversation history and current user input to get a supervisor's decision."""
-        conversation_history = conversation_state.get("conversation_history", [])
-        user_input = conversation_state["user_input"]
-        exchange = conversation_state.get("exchange", 0)
+        try:
+            conversation_history = conversation_state.get("conversation_history", [])
+            user_input = conversation_state.get("user_input", "")
 
-        # print("received user-input: ", user_input)
+            if not user_input:
+                logger.warning("User input is missing in conversation_state.")
+                return {"supervisor_response": "continue_chat"}  # Default action
 
-        # Select recent exchanges if there are more than 6
-        select_conv = (
-            conversation_history
-            if len(conversation_history) < 6
-            else conversation_history[-6:]
-        )
+            # Select recent exchanges if there are more than 6
+            select_conv = (
+                conversation_history
+                if len(conversation_history) < 6
+                else conversation_history[-6:]
+            )
 
-        prompt = self.get_supervisor_prompt(user_input, select_conv)
-        supervisor_response = self.llm.invoke(prompt)
+            logger.info(f"Generating supervisor decision for input: {user_input}")
+            prompt = self.get_supervisor_prompt(user_input, select_conv)
 
-        print(f"=====> Supervisor Decision: {supervisor_response} <=====")
+            supervisor_response = self.llm.invoke(prompt)
+            logger.info(f"Supervisor Decision: {supervisor_response}")
 
-        return {"supervisor_response": supervisor_response}
+            return {"supervisor_response": supervisor_response}
+
+        except Exception as e:
+            logger.exception(f"Error in get_supervisor_decision: {e}")
+            return {"supervisor_response": "continue_chat"}  # Fallback decision
