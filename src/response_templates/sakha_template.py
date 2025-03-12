@@ -40,7 +40,7 @@ class SakhaResponseForFUFlow(BaseModel):
 
     replyToUser: str = Field(description="Reply to be shown to user")
     isFeedbackCollectionComplete: bool = Field(
-        description="True if the feedback collection is complete"
+        description="default False, True if the feedback collection is complete"
     )
     activityFeedback: Optional[ActivityFeedback] = Field(
         None,

@@ -61,7 +61,7 @@ async def chat(user_input: UserInput):
             # Default to activity suggestion if new user
             conversation_graph.update_state(
                 config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}},
-                values={'user_info': user_manager.get_user_info(user_input.user_id), 'flow': 'activity_suggestion'}
+                values={'thread_id': user_input.thread_id, 'user_id': user_input.user_id, 'user_info': user_manager.get_user_info(user_input.user_id), 'flow': 'activity_suggestion'}
             )
             active_sessions[user_input.thread_id] = True  # Mark session as active
 
@@ -145,6 +145,12 @@ async def add_user(user: UserCreateRequest):
     if not user_id:
         raise HTTPException(status_code=500, detail="Failed to add user")
     return {"user_id": user_id}
+
+
+@app.get("/scheduled-reminders/")
+async def get_scheduled_reminders():
+    """Fetches all scheduled reminders."""
+    return reminder_manager.list_scheduled_jobs()
 
 
 if __name__ == "__main__":
