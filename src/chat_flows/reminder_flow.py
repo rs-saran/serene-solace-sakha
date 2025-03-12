@@ -1,44 +1,47 @@
-from langchain_core.messages import (AIMessage, HumanMessage, SystemMessage,
-                                     ToolMessage)
-
+import logging
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from src.chat_flows.chat_flow import ChatFlow
-from src.managers.prompt_manager import (get_activity_suggestion_prompt,
-                                         get_sakha_char_prompt)
+from src.managers.prompt_manager import get_sakha_char_prompt
 from src.response_templates.sakha_template import SakhaResponseForRemFlow
 from src.utils import get_current_time_ist
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 class ReminderFlow(ChatFlow):
 
-    def generate_response(
-        self, exchange, user_input, conversation_history_pretty, user_info, activity_details
-    ):
-        if exchange == 0:
-            chat_prompt_msgs = [
-                SystemMessage(get_sakha_char_prompt()),
-                SystemMessage(f"Current time: {get_current_time_ist()}"),
-                SystemMessage(
-                    f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
-                ),
-                SystemMessage(
-                    f"Previously you set a reminder for {activity_details}. It’s time! Encourage the user to start their activity with enthusiasm and motivation."
-                ),
-            ]
-        else:
-            chat_prompt_msgs = [
-                SystemMessage(get_sakha_char_prompt()),
-                SystemMessage(f"Current time: {get_current_time_ist()}"),
-                SystemMessage(
-                    f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
-                ),
-                SystemMessage(
-                    f"Reminder details: {activity_details}. Motivate the user to complete the activity. If they seem reluctant, suggest small fun modifications to make it more enjoyable or alternatives else end the conversation."
-                ),
-                HumanMessage(user_input),
-            ]
+    def generate_response(self, exchange, user_input, conversation_history_pretty, user_info, activity_details):
+        try:
+            logger.info(f"Generating reminder response for activity: {activity_details}")
 
-        model_response = self.llm.with_structured_output(
-            SakhaResponseForRemFlow
-        ).invoke(chat_prompt_msgs)
+            if exchange == 0:
+                chat_prompt_msgs = [
+                    SystemMessage(get_sakha_char_prompt()),
+                    SystemMessage(f"Current time: {get_current_time_ist()}"),
+                    SystemMessage(f"Conversation History:\n{conversation_history_pretty}"),
+                    SystemMessage(
+                        f"Previously, you set a reminder for {activity_details}. It’s time! "
+                        f"Encourage the user to start their activity with enthusiasm and motivation."
+                    ),
+                ]
+            else:
+                chat_prompt_msgs = [
+                    SystemMessage(get_sakha_char_prompt()),
+                    SystemMessage(f"Current time: {get_current_time_ist()}"),
+                    SystemMessage(f"Conversation History:\n{conversation_history_pretty}"),
+                    SystemMessage(
+                        f"Reminder details: {activity_details}. Motivate the user to complete the activity. "
+                        f"If they seem reluctant, suggest small fun modifications to make it more enjoyable "
+                        f"or provide alternatives. Otherwise, end the conversation."
+                    ),
+                    HumanMessage(user_input),
+                ]
 
-        return model_response
+            model_response = self.llm.with_structured_output(SakhaResponseForRemFlow).invoke(chat_prompt_msgs)
+            logger.info("Successfully generated reminder response.")
+            return model_response
+
+        except Exception as e:
+            logger.error(f"Error generating reminder response: {str(e)}", exc_info=True)
+            return {"error": "Sorry, I ran into an issue. Can you try again?"}
