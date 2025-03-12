@@ -1,9 +1,9 @@
-import logging
 from typing import Dict
+
+from src.logger import get_logger
 from src.response_templates.conversation_state import ConversationState
 from src.response_templates.supervisor_response import SupervisorResponse
-from src.utils import get_llm
-from src.logger import get_logger
+from src.utils import exchanges_pretty
 
 logger = get_logger(__name__)
 
@@ -61,9 +61,10 @@ class Supervisor:
                 if len(conversation_history) < 6
                 else conversation_history[-6:]
             )
+            select_conv_pretty = exchanges_pretty(select_conv)
 
             logger.info(f"Generating supervisor decision for input: {user_input}")
-            prompt = self.get_supervisor_prompt(user_input, select_conv)
+            prompt = self.get_supervisor_prompt(user_input, select_conv_pretty)
 
             supervisor_response = self.llm.invoke(prompt)
             logger.info(f"Supervisor Decision: {supervisor_response}")

@@ -1,14 +1,11 @@
 from pydantic import BaseModel
+
+from src.logger import get_logger
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
-from src.response_templates.activity_reminder_config import ActivityReminderConfig
-from src.response_templates.activity_feedback import ActivityFeedback
-from src.response_templates.sakha_template import (
-    SakhaResponseForASFlow,
-    SakhaResponseForFUFlow,
-    SakhaResponseForRemFlow,
-)
-from src.logger import get_logger
+from src.response_templates.sakha_template import (SakhaResponseForASFlow,
+                                                   SakhaResponseForFUFlow,
+                                                   SakhaResponseForRemFlow)
 
 logger = get_logger(__name__)
 
@@ -16,7 +13,9 @@ logger = get_logger(__name__)
 class ResponseManager:
     """Handles chatbot responses and integrates with ReminderManager."""
 
-    def __init__(self, reminder_manager: ReminderManager, db_manager: PostgresDBManager):
+    def __init__(
+        self, reminder_manager: ReminderManager, db_manager: PostgresDBManager
+    ):
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
 
@@ -38,9 +37,13 @@ class ResponseManager:
             elif isinstance(response, SakhaResponseForFUFlow):
                 self._handle_fu_flow(user_id, thread_id, response)
 
-            logger.info(f"Handled response type: {type(response).__name__} for user {user_id}.")
+            logger.info(
+                f"Handled response type: {type(response).__name__} for user {user_id}."
+            )
         except Exception as e:
-            logger.error(f"Error handling response for user {user_id}: {e}", exc_info=True)
+            logger.error(
+                f"Error handling response for user {user_id}: {e}", exc_info=True
+            )
 
         return self._format_response(response.replyToUser, activity_details)
 
@@ -49,7 +52,11 @@ class ResponseManager:
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
         """
-        if response.didUserAgreeOnActivity and response.didUserAgreeOnTime and response.didUserAgreeOnDuration:
+        if (
+            response.didUserAgreeOnActivity
+            and response.didUserAgreeOnTime
+            and response.didUserAgreeOnDuration
+        ):
             if response.reminder:
                 try:
                     self.reminder_manager.add_reminder(
@@ -69,10 +76,15 @@ class ResponseManager:
                         "duration": response.reminder.duration,
                     }
 
-                    logger.info(f"Reminder added: {activity_details} for user {user_id}.")
+                    logger.info(
+                        f"Reminder added: {activity_details} for user {user_id}."
+                    )
                     return activity_details
                 except Exception as e:
-                    logger.error(f"Error scheduling reminder for user {user_id}: {e}", exc_info=True)
+                    logger.error(
+                        f"Error scheduling reminder for user {user_id}: {e}",
+                        exc_info=True,
+                    )
 
         return None
 
@@ -98,9 +110,13 @@ class ResponseManager:
                         response.activityFeedback.reason_skipped,
                     ),
                 )
-                logger.info(f"Feedback stored for user {user_id} on activity {response.activityFeedback.activity}.")
+                logger.info(
+                    f"Feedback stored for user {user_id} on activity {response.activityFeedback.activity}."
+                )
             except Exception as e:
-                logger.error(f"Error storing feedback for user {user_id}: {e}", exc_info=True)
+                logger.error(
+                    f"Error storing feedback for user {user_id}: {e}", exc_info=True
+                )
 
     def _handle_rem_flow(self, user_id, thread_id, response: SakhaResponseForRemFlow):
         """

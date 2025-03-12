@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from src.core.conversation_graph import ConversationGraph, ConversationProcessor
+from src.core.conversation_graph import ConversationGraph
+from src.core.conversation_processor import ConversationProcessor
 from src.utils import get_llm
 from src.managers.user_manager import UserManager
 
@@ -16,13 +16,11 @@ from pydantic import BaseModel
 from typing import List
 
 
-
-
 app = FastAPI()
 
 db_manager = PostgresDBManager()
 checkpointer = PostgresCheckpointerManager(db_manager).get_checkpointer()
-reminder_manager = ReminderManager(db_manager, BASE_URL = "http://127.0.0.1:8000")
+reminder_manager = ReminderManager(db_manager, base_url="http://127.0.0.1:8000")
 response_manager = ResponseManager(
     reminder_manager=reminder_manager, db_manager=db_manager, 
 )
@@ -35,14 +33,17 @@ user_manager = UserManager()
 # Store active users' conversation states
 active_sessions = {}
 
+
 class UserInput(BaseModel):
     user_id: str
     thread_id: str
     message: str
 
+
 def handle_exit(*args):
     print("Shutting down gracefully...")
     db_manager.close()
+
 
 # Register signal handlers
 signal.signal(signal.SIGINT, handle_exit)
@@ -71,6 +72,7 @@ async def chat(user_input: UserInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/send-reminder/")
 async def send_reminder(user_input: UserInput):
     """Triggers reminder flow for a user."""
@@ -79,13 +81,14 @@ async def send_reminder(user_input: UserInput):
             config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}},
             values={'flow': 'reminder', 'exchange': 0}
         )
-        sys_input = "send a reminder to user for activity"
+        # sys_input = "send a reminder to user for activity"
         # Process user message
         response = processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
         return {"response": response}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/follow-up/")
 async def collect_feedback(user_input: UserInput):
@@ -95,20 +98,21 @@ async def collect_feedback(user_input: UserInput):
             config={'configurable': {'thread_id': user_input.thread_id, 'user_id': user_input.user_id}},
             values={'flow': 'follow-up', 'exchange': 0}
         )
-        sys_input = "it's about time user completes their activity, collect feedback"
+        # sys_input = "it's about time user completes their activity, collect feedback"
         
         # Process user message
         response = processor.process_input(user_input.message, thread_id=user_input.thread_id, user_id=user_input.user_id)
         return {"response": response}
 
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/active-session-count/")
 async def activce_session_count():
     """Returns the number of active sessions."""
     return {"active_sessions": len(active_sessions)}
+
 
 @app.get("/users/{user_id}")
 async def get_user_info(user_id: str):
@@ -118,6 +122,7 @@ async def get_user_info(user_id: str):
         raise HTTPException(status_code=404, detail="User not found")
     return user_info
 
+
 @app.get("/users/{user_id}/sessions")
 async def get_user_session_count(user_id: str):
     """Fetches user session count by user ID."""
@@ -126,10 +131,12 @@ async def get_user_session_count(user_id: str):
         raise HTTPException(status_code=404, detail="User not found")
     return user_session_info
 
+
 class UserCreateRequest(BaseModel):
     name: str
     age_range: str
     preferred_activities: List[str]  # Ensure it's a list
+
 
 @app.post("/users/add")
 async def add_user(user: UserCreateRequest):
@@ -139,6 +146,6 @@ async def add_user(user: UserCreateRequest):
         raise HTTPException(status_code=500, detail="Failed to add user")
     return {"user_id": user_id}
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

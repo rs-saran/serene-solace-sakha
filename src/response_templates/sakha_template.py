@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -8,7 +8,7 @@ from src.response_templates.activity_reminder_config import \
 
 
 class SakhaResponseForASFlow(BaseModel):
-    "Response template to follow"
+    """Response template to follow"""
 
     replyToUser: str = Field(description="Reply to be shown to user")
     didUserAgreeOnActivity: bool = Field(
@@ -27,7 +27,7 @@ class SakhaResponseForASFlow(BaseModel):
 
 
 class SakhaResponseForRemFlow(BaseModel):
-    "Response template to follow"
+    """Response template to follow"""
 
     replyToUser: str = Field(description="Reply to be shown to user")
     suggestAlternatives: bool = Field(
@@ -36,7 +36,7 @@ class SakhaResponseForRemFlow(BaseModel):
 
 
 class SakhaResponseForFUFlow(BaseModel):
-    "Response template to follow"
+    """Response template to follow"""
 
     replyToUser: str = Field(description="Reply to be shown to user")
     isFeedbackCollectionComplete: bool = Field(

@@ -14,12 +14,16 @@ class ChatFlowManager:
             "reminder": ReminderFlow(llm),
             "follow-up": FollowUpFlow(llm),
         }
-        logger.info("ChatFlowManager initialized with flows: %s", list(self.flows.keys()))
+        logger.info(
+            "ChatFlowManager initialized with flows: %s", list(self.flows.keys())
+        )
 
     def get_chat_flow(self, flow_name):
         if flow_name in self.flows:
             logger.info(f"Retrieving chat flow: {flow_name}")
             return self.flows[flow_name]
         else:
-            logger.warning(f"Chat flow '{flow_name}' not found. Defaulting to 'activity_suggestion'.")
+            logger.warning(
+                f"Chat flow '{flow_name}' not found. Defaulting to 'activity_suggestion'."
+            )
             return ActivitySuggestionFlow(self.llm)

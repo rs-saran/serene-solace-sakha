@@ -1,5 +1,6 @@
 import psycopg
 from psycopg_pool import ConnectionPool
+
 from src.logger import get_logger
 
 logger = get_logger(__name__)
@@ -12,14 +13,16 @@ class PostgresDBManager:
 
     def __new__(
         cls,
-        db_config={
-            "dbname": "postgres",
-            "user": "postgres",
-            "password": "1234",
-            "host": "localhost",
-            "port": "5432",
-        },
+        db_config=None,
     ):
+        if db_config is None:
+            db_config = {
+                "dbname": "postgres",
+                "user": "postgres",
+                "password": "1234",
+                "host": "localhost",
+                "port": "5432",
+            }
         if cls._instance is None:
             cls._instance = super(PostgresDBManager, cls).__new__(cls)
             try:
@@ -31,7 +34,7 @@ class PostgresDBManager:
         return cls._instance
 
     def _initialize(self, db_config):
-        CONNECTION_KWARGS = {
+        connection_kwargs = {
             "autocommit": True,
             "prepare_threshold": 0,
         }
@@ -41,7 +44,7 @@ class PostgresDBManager:
                 conninfo=f"dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']} host={db_config['host']} port={db_config['port']}",
                 min_size=1,
                 max_size=10,
-                kwargs=CONNECTION_KWARGS,
+                kwargs=connection_kwargs,
             )
             self.setup()
         except Exception as e:

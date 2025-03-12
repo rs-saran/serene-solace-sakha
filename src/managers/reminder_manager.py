@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
-import requests
+from typing import Optional
+
 import pytz
-from src.managers.postgres_db_manager import PostgresDBManager
+import requests
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from src.logger import get_logger
+from src.managers.postgres_db_manager import PostgresDBManager
 
 logger = get_logger(__name__)
 
@@ -11,9 +14,9 @@ logger = get_logger(__name__)
 class ReminderManager:
     """Handles storing and scheduling reminders."""
 
-    def __init__(self, db_manager: PostgresDBManager, BASE_URL: str):
+    def __init__(self, db_manager: PostgresDBManager, base_url: str):
         self.db_manager = db_manager
-        self.BASE_URL = BASE_URL
+        self.BASE_URL = base_url
         self.scheduler = BackgroundScheduler(daemon=True)
         self.scheduler.start()
         self._load_pending_reminders()
@@ -30,11 +33,17 @@ class ReminderManager:
 
     def _send_reminder(self, user_id: str, thread_id: str, message: str):
         """Sends a reminder notification."""
-        self._send_request("send-reminder", {"user_id": user_id, "thread_id": thread_id, "message": message})
+        self._send_request(
+            "send-reminder",
+            {"user_id": user_id, "thread_id": thread_id, "message": message},
+        )
 
     def _send_follow_up(self, user_id: str, thread_id: str, message: str):
         """Sends a follow-up notification."""
-        self._send_request("follow-up", {"user_id": user_id, "thread_id": thread_id, "message": message})
+        self._send_request(
+            "follow-up",
+            {"user_id": user_id, "thread_id": thread_id, "message": message},
+        )
 
     def _update_reminder_status(self, reminder_id: int, column: str):
         """Marks a reminder as sent."""
@@ -60,14 +69,21 @@ class ReminderManager:
         """Schedules reminders and follow-ups."""
         ist = pytz.timezone("Asia/Kolkata")
         now_ist = datetime.now(ist)
-        start_time = datetime(now_ist.year, now_ist.month, now_ist.day, hour, minute, tzinfo=ist)
+        start_time = datetime(
+            now_ist.year, now_ist.month, now_ist.day, hour, minute, tzinfo=ist
+        )
 
         if send_reminder and start_time > now_ist:
             self.scheduler.add_job(
                 self._execute_reminder,
                 "date",
                 run_date=start_time,
-                args=[reminder_id, user_id, thread_id, f"Reminder: Time for {activity}!"],
+                args=[
+                    reminder_id,
+                    user_id,
+                    thread_id,
+                    f"Reminder: Time for {activity}!",
+                ],
                 id=f"reminder_{reminder_id}",
             )
             logger.info(f"Scheduled reminder for {activity} at {hour}:{minute} IST.")
@@ -79,17 +95,28 @@ class ReminderManager:
                     self._execute_followup,
                     "date",
                     run_date=followup_time,
-                    args=[reminder_id, user_id, thread_id, f"Follow-up: How was {activity}?"],
+                    args=[
+                        reminder_id,
+                        user_id,
+                        thread_id,
+                        f"Follow-up: How was {activity}?",
+                    ],
                     id=f"followup_{reminder_id}",
                 )
-                logger.info(f"Scheduled follow-up for {activity} at {followup_time.strftime('%H:%M')} IST.")
+                logger.info(
+                    f"Scheduled follow-up for {activity} at {followup_time.strftime('%H:%M')} IST."
+                )
 
-    def _execute_reminder(self, reminder_id: int, user_id: str, thread_id: str, message: str):
+    def _execute_reminder(
+        self, reminder_id: int, user_id: str, thread_id: str, message: str
+    ):
         """Executes the reminder job."""
         self._send_reminder(user_id, thread_id, message)
         self._update_reminder_status(reminder_id, "is_reminder_sent")
 
-    def _execute_followup(self, reminder_id: int, user_id: str, thread_id: str, message: str):
+    def _execute_followup(
+        self, reminder_id: int, user_id: str, thread_id: str, message: str
+    ):
         """Executes the follow-up job."""
         self._send_follow_up(user_id, thread_id, message)
         self._update_reminder_status(reminder_id, "is_followup_sent")
@@ -105,7 +132,9 @@ class ReminderManager:
         try:
             rows = self.db_manager.execute(query, fetch=True)
             if rows:
-                logger.info(f"Found {len(rows)} pending reminders. Scheduling them now...")
+                logger.info(
+                    f"Found {len(rows)} pending reminders. Scheduling them now..."
+                )
                 for row in rows:
                     self._schedule_reminder(*row)
             else:
@@ -132,12 +161,31 @@ class ReminderManager:
         try:
             result = self.db_manager.execute(
                 query,
-                (user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup),
+                (
+                    user_id,
+                    thread_id,
+                    activity,
+                    hour,
+                    minute,
+                    duration,
+                    send_reminder,
+                    send_followup,
+                ),
                 fetch=True,
             )
             if result:
                 reminder_id = result[0][0]
-                self._schedule_reminder(reminder_id, user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup)
+                self._schedule_reminder(
+                    reminder_id,
+                    user_id,
+                    thread_id,
+                    activity,
+                    hour,
+                    minute,
+                    duration,
+                    send_reminder,
+                    send_followup,
+                )
                 logger.info(f"Added reminder for {activity} at {hour}:{minute} IST.")
                 return reminder_id
         except Exception as e:

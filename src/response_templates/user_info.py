@@ -1,4 +1,5 @@
-from typing import Literal, TypedDict
+from typing import TypedDict
+
 
 class UserInfo(TypedDict):
     user_id: str
