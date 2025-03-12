@@ -1,12 +1,19 @@
 import uuid
-from typing import List, Optional, Union
-from src.managers.postgres_db_manager import PostgresDBManager 
+import logging
+from typing import List, Optional, Dict
+from src.managers.postgres_db_manager import PostgresDBManager
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 class UserManager:
     def __init__(self):
+        """Initialize the UserManager with a database connection."""
         self.db = PostgresDBManager()
 
-    def add_user(self, name: str, age_range: str, preferred_activities: List[str]) -> str:
+    def add_user(self, name: str, age_range: str, preferred_activities: List[str]) -> Optional[str]:
         """Creates a new user with a unique UUID and stores it in the database."""
         user_id = str(uuid.uuid4())  # Generate a random UUID
         query = """
@@ -15,101 +22,108 @@ class UserManager:
         """
         try:
             self.db.execute(query, (user_id, name, age_range, preferred_activities))
-            return user_id  # Return the generated user ID
+            logger.info(f"User {name} added successfully with ID {user_id}.")
+            return user_id
         except Exception as e:
-            print(f"Error adding user: {e}")
+            logger.error(f"Error adding user: {e}", exc_info=True)
             return None
 
-    def get_user_info(self, user_id: str) -> Optional[dict]:
-        """Fetches a user by ID, handling cases where the user is not found."""
+    def get_user_info(self, user_id: str) -> Optional[Dict]:
+        """Fetches a user by ID, returning None if not found."""
         if not user_id:
-            print("Error: Missing user ID")
+            logger.error("Error: Missing user ID")
             return None
 
         query = "SELECT user_id, name, age_range, preferred_activities FROM users WHERE user_id = %s;"
-        result = self.db.execute(query, (user_id,), fetch=True)
+        try:
+            result = self.db.execute(query, (user_id,), fetch=True)
+            if result:
+                return {
+                    "user_id": result[0][0],
+                    "name": result[0][1],
+                    "age_range": result[0][2],
+                    "preferred_activities": result[0][3],
+                }
+            logger.warning(f"User with ID {user_id} not found.")
+            return None
+        except Exception as e:
+            logger.error(f"Error retrieving user info: {e}", exc_info=True)
+            return None
 
-        if result:
-            return {
-                "user_id": result[0][0],
-                "name": result[0][1],
-                "age_range": result[0][2],
-                "preferred_activities": result[0][3],
-            }
-
-        print(f"User with ID {user_id} not found.")
-        return None
-
-    def get_user_session_count(self, user_id: str) -> Optional[dict]:
-        """Fetches a user by ID, handling cases where the user is not found."""
+    def get_user_session_count(self, user_id: str) -> Optional[Dict]:
+        """Fetches a user's session count by ID."""
         if not user_id:
-            print("Error: Missing user ID")
+            logger.error("Error: Missing user ID")
             return None
 
         query = "SELECT user_id, session_count FROM users WHERE user_id = %s;"
-        result = self.db.execute(query, (user_id,), fetch=True)
+        try:
+            result = self.db.execute(query, (user_id,), fetch=True)
+            if result:
+                return {"user_id": result[0][0], "session_count": result[0][1]}
+            logger.warning(f"User with ID {user_id} not found.")
+            return None
+        except Exception as e:
+            logger.error(f"Error retrieving session count: {e}", exc_info=True)
+            return None
 
-        if result:
-            return {
-                "user_id": result[0][0],
-                "session_count": result[0][1],
-            }
-            
-        print(f"User with ID {user_id} not found.")
-        return None
-
-    def get_all_users(self) -> List[dict]:
+    def get_all_users(self) -> List[Dict]:
         """Fetches all users from the database."""
         query = "SELECT * FROM users;"
-        result = self.db.execute(query, fetch=True)
+        try:
+            result = self.db.execute(query, fetch=True)
+            if not result:
+                logger.info("No users found in the database.")
+                return []
 
-        if not result:
-            print("No users found.")
+            return [
+                {
+                    "user_id": row[0],
+                    "name": row[1],
+                    "age_range": row[2],
+                    "preferred_activities": row[3],
+                    "created_at": row[4],
+                }
+                for row in result
+            ]
+        except Exception as e:
+            logger.error(f"Error retrieving users: {e}", exc_info=True)
             return []
 
-        return [
-            {
-                "user_id": row[0],
-                "name": row[1],
-                "age_range": row[2],
-                "preferred_activities": row[3],
-                "created_at": row[4]
-            }
-            for row in result
-        ]
-
     def update_user_activities(self, user_id: str, new_activities: List[str]) -> bool:
-        """Updates a user's preferred activities, ensuring the user exists."""
+        """Updates a user's preferred activities if they exist."""
         if not user_id:
-            print("Error: Missing user ID")
+            logger.error("Error: Missing user ID")
             return False
 
-        existing_user = self.get_user(user_id)
-        if not existing_user:
+        if not self.get_user_info(user_id):
+            logger.warning(f"Update failed: User {user_id} not found.")
             return False
 
         query = "UPDATE users SET preferred_activities = %s WHERE user_id = %s;"
         try:
             self.db.execute(query, (new_activities, user_id))
+            logger.info(f"Updated activities for user {user_id}.")
             return True
         except Exception as e:
-            print(f"Error updating activities: {e}")
+            logger.error(f"Error updating activities: {e}", exc_info=True)
             return False
 
     def delete_user(self, user_id: str) -> bool:
         """Deletes a user if they exist."""
         if not user_id:
-            print("Error: Missing user ID")
+            logger.error("Error: Missing user ID")
             return False
 
-        existing_user = self.get_user(user_id)
-        if not existing_user:
+        if not self.get_user_info(user_id):
+            logger.warning(f"Delete failed: User {user_id} not found.")
             return False
 
         query = "DELETE FROM users WHERE user_id = %s;"
         try:
             self.db.execute(query, (user_id,))
+            logger.info(f"User {user_id} deleted successfully.")
             return True
         except Exception as e:
-            print(f"Error deleting user: {e}")
+            logger.error(f"Error deleting user: {e}", exc_info=True)
             return False

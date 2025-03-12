@@ -1,9 +1,14 @@
+import logging
 import psycopg
 from psycopg_pool import ConnectionPool
 
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 class PostgresDBManager:
-    """Manages database connections and setup."""
+    """Manages database connections and setup using a connection pool."""
 
     _instance = None
 
@@ -19,7 +24,12 @@ class PostgresDBManager:
     ):
         if cls._instance is None:
             cls._instance = super(PostgresDBManager, cls).__new__(cls)
-            cls._instance._initialize(db_config)
+            try:
+                cls._instance._initialize(db_config)
+                logger.info("Database connection pool initialized successfully.")
+            except Exception as e:
+                logger.exception("Failed to initialize database connection pool.")
+                raise e  # Prevent execution if DB setup fails
         return cls._instance
 
     def _initialize(self, db_config):
@@ -28,13 +38,17 @@ class PostgresDBManager:
             "prepare_threshold": 0,
         }
 
-        self.pool = ConnectionPool(
-            conninfo=f"dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']} host={db_config['host']} port={db_config['port']}",
-            min_size=1,
-            max_size=10,
-            kwargs=CONNECTION_KWARGS,
-        )
-        self.setup()
+        try:
+            self.pool = ConnectionPool(
+                conninfo=f"dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']} host={db_config['host']} port={db_config['port']}",
+                min_size=1,
+                max_size=10,
+                kwargs=CONNECTION_KWARGS,
+            )
+            self.setup()
+        except Exception as e:
+            logger.exception("Error initializing the database pool.")
+            raise
 
     def setup(self):
         """Creates necessary tables if they do not exist."""
@@ -79,17 +93,35 @@ class PostgresDBManager:
             """,
         ]
         for query in queries:
-            self.execute(query)
-
-        print("exceuted postgres setup")
+            try:
+                self.execute(query)
+                logger.info("Successfully executed setup query.")
+            except Exception as e:
+                logger.exception("Error executing setup query.")
 
     def execute(self, query, params=None, fetch=False):
-        with self.pool.connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, params)
-                if fetch:
-                    return cur.fetchall()
-                conn.commit()
+        """Executes SQL queries with error handling."""
+        try:
+            with self.pool.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, params)
+                    if fetch:
+                        result = cur.fetchall()
+                        logger.info(f"Query executed successfully: {query}")
+                        return result
+                    conn.commit()
+                    logger.info(f"Query executed and committed successfully.")
+        except psycopg.DatabaseError as e:
+            logger.exception(f"Database error executing query: {query}")
+            return None  # Handle failure gracefully
+        except Exception as e:
+            logger.exception(f"Unexpected error executing query: {query}")
+            return None
 
     def close(self):
-        self.pool.close()
+        """Closes the database connection pool."""
+        try:
+            self.pool.close()
+            logger.info("Database connection pool closed successfully.")
+        except Exception as e:
+            logger.exception("Error closing the database connection pool.")
