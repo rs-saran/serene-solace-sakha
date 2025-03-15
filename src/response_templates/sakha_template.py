@@ -46,3 +46,9 @@ class SakhaResponseForFUFlow(BaseModel):
         None,
         description="Optional Activity Feedback info, fill it only after you collect the details from user",
     )
+
+class SakhaResponseForError(BaseModel):
+    """Response template to follow"""
+
+    error: str = Field(description="Error Message")
+    replyToUser: str = Field(description="Reply to be shown to user")

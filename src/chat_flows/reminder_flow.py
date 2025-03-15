@@ -59,4 +59,5 @@ class ReminderFlow(ChatFlow):
 
         except Exception as e:
             logger.error(f"Error generating reminder response: {str(e)}", exc_info=True)
-            return {"error": "Sorry, I ran into an issue. Can you try again?"}
+            return {"replyToUser": "Sorry, I ran into an issue. Can you try again?",
+                    "error": f"Error generating response in RemFlow"}

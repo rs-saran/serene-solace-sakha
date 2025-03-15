@@ -1,11 +1,9 @@
-from pydantic import BaseModel
-
 from src.logger import get_logger
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
 from src.response_templates.sakha_template import (SakhaResponseForASFlow,
                                                    SakhaResponseForFUFlow,
-                                                   SakhaResponseForRemFlow)
+                                                   SakhaResponseForRemFlow, SakhaResponseForError)
 
 logger = get_logger(__name__)
 
@@ -36,6 +34,8 @@ class ResponseManager:
                 self._handle_rem_flow(user_id, thread_id, response)
             elif isinstance(response, SakhaResponseForFUFlow):
                 self._handle_fu_flow(user_id, thread_id, response)
+            elif isinstance(response,SakhaResponseForError):
+                self._handle_error_flow(user_id, thread_id, response)
 
             logger.info(
                 f"Handled response type: {type(response).__name__} for user {user_id}."
@@ -124,3 +124,11 @@ class ResponseManager:
         Currently, it only determines whether to suggest alternatives.
         """
         logger.info(f"Processing reminder flow for user {user_id}, thread {thread_id}.")
+
+
+    def _handle_error_flow(self, user_id, thread_id, response: SakhaResponseForError):
+        """
+        Handles the Reminder Flow.
+        Currently, it only determines whether to suggest alternatives.
+        """
+        logger.info(f"Processing error msg for user {user_id}, thread {thread_id}.")
