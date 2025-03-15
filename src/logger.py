@@ -29,7 +29,7 @@ def get_logger(name: str):
     logger = logging.getLogger(name)
     if not logger.hasHandlers():  # Prevent duplicate handlers
         handler = logging.StreamHandler(sys.stdout)
-        formatter = ColoredFormatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = ColoredFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
