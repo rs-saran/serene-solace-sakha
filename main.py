@@ -109,7 +109,7 @@ async def collect_feedback(user_input: UserInput):
 
 
 @app.get("/active-session-count/")
-async def activce_session_count():
+async def get_active_session_count():
     """Returns the number of active sessions."""
     return {"active_sessions": len(active_sessions)}
 
@@ -130,6 +130,23 @@ async def get_user_session_count(user_id: str):
     if not user_session_info:
         raise HTTPException(status_code=404, detail="User not found")
     return user_session_info
+
+
+@app.post("/end_session")
+async def end_user_session(user_id: str, thread_id: str):
+    """Fetches user session count by user ID."""
+    if active_sessions.get(thread_id, False):
+        try:
+            response = user_manager.update_user_session_count(user_id)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    else:
+        raise HTTPException(status_code=404, detail="Active session not found")
+
+
+
+    return {"response": response}
 
 
 class UserCreateRequest(BaseModel):

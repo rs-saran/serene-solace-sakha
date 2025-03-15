@@ -4,3 +4,4 @@ sakha-env
 *.pyo
 *.pyd
 dev_test.ipynb
+.idea

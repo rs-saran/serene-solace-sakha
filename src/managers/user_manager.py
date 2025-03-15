@@ -91,6 +91,32 @@ class UserManager:
             logger.error(f"Error retrieving users: {e}", exc_info=True)
             return []
 
+    def update_user_session_count(self, user_id: str) -> bool:
+        """Increments the session count for the user by 1."""
+        if not user_id:
+            logger.error("Error: Missing user ID")
+            return False
+
+        # Check if user exists first
+        user_info = self.get_user_session_count(user_id)
+        if not user_info:
+            logger.warning(f"Update failed: User {user_id} not found.")
+            return False
+
+        # Retrieve the current session count and increment it by 1
+        current_session_count = user_info.get("session_count", 0)
+        new_session_count = current_session_count + 1
+
+        query = "UPDATE users SET session_count = %s WHERE user_id = %s;"
+        try:
+            self.db.execute(query, (new_session_count, user_id))
+            logger.info(f"Incremented session count for user {user_id} to {new_session_count}.")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating session count: {e}", exc_info=True)
+            return False
+
+
     def update_user_activities(self, user_id: str, new_activities: List[str]) -> bool:
         """Updates a user's preferred activities if they exist."""
         if not user_id:
