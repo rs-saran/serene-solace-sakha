@@ -1,7 +1,6 @@
 P0:
 1. Capture reminder and follow up updates in streamlit ui
-2. Improve error handling for followup responses
-3. Implement Session Management and clean up.
+2. Implement Session Management and clean up.
 
 
 -----------

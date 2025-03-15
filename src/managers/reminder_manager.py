@@ -41,7 +41,7 @@ class ReminderManager:
     def _send_follow_up(self, user_id: str, thread_id: str, message: str):
         """Sends a follow-up notification."""
         self._send_request(
-            "follow-up",
+            "send-follow-up",
             {"user_id": user_id, "thread_id": thread_id, "message": message},
         )
 
