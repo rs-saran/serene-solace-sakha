@@ -1,8 +1,14 @@
 P0:
-1. Capture reminder and follow up updates in streamlit ui
-2. Implement Session Management and clean up.
-
-
+1. User registration & Reminder check in UI
+2. Implement Session Management - End session button, session count updation
+3. Checkpoint clean up.
 -----------
 P2:
 1. Implement cross thread semantic memory.
+-----------
+Issues:
+1. Current reminder flow fails if user has asked to set multiple reminders for different activities doesn't work correctly.
+2. Thread id format
+3. Feedback not getting stored in DB
+4.
+--------------
