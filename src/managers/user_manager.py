@@ -8,9 +8,9 @@ logger = get_logger(__name__)
 
 
 class UserManager:
-    def __init__(self):
+    def __init__(self, db_manager: PostgresDBManager):
         """Initialize the UserManager with a database connection."""
-        self.db = PostgresDBManager()
+        self.db = db_manager
 
     def add_user(
         self, name: str, age_range: str, preferred_activities: List[str]
