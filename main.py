@@ -17,12 +17,11 @@ import datetime
 import threading
 import time
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template,  send_from_directory, request, jsonify
 from flask_socketio import SocketIO, join_room, leave_room
 
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 db_manager = PostgresDBManager()
 checkpointer = PostgresCheckpointerManager(db_manager).get_checkpointer()
@@ -37,10 +36,41 @@ user_manager = UserManager(db_manager)
 
 active_sessions = {}
 
+app = Flask(__name__, static_folder="ui", template_folder="ui")
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    return send_from_directory("ui", filename)  # Serves CSS/JS correctly
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
+@app.route("/register_user", methods=["POST"])
+def register_user():
+    data = request.json
+    name = data.get("name")
+    age_range = data.get("age_range")
+    preferred_activities = data.get("preferred_activities")
+
+    if not name or not age_range:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    user_id = user_manager.add_user(name, age_range, preferred_activities)
+    return jsonify({"user_id": user_id})
+
+
+@app.route("/scheduled-reminders/", methods=["GET"])
+def get_scheduled_reminders():
+    """Fetches all scheduled reminders. only for debugging"""
+    return reminder_manager.list_scheduled_jobs()
 
 
 @app.route("/send-reminder/", methods=["POST"])
@@ -108,6 +138,7 @@ def start_session():
         return jsonify({"error": "Invalid User ID"}), 404
 
     session_count = user_manager.get_user_session_count(user_id)
+
     thread_id = f"tid_{session_count}_{user_id}"
 
     return jsonify({"thread_id": thread_id, "message": "Session started"})

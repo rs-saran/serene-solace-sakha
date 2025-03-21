@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Sakha</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Sakha</h1>
+
+        <div class="container mt-3">
+            <button onclick="window.location.href='/register'" class="btn btn-secondary">
+                New User? Register Here
+            </button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
+            <button id="start-btn" class="btn">Start Chat</button>
+        </div>
+
+        <p id="thread-id-display"></p>
+        <div id="status-indicator">Not connected</div>
+
+        <div id="chat-box" class="chat-container"></div>
+
+        <div class="input-group">
+            <input type="text" id="message-input" class="form-control" placeholder="Type your message..." disabled>
+            <button id="send-btn" class="btn" disabled>Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
