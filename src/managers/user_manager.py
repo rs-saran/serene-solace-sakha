@@ -57,11 +57,11 @@ class UserManager:
             logger.error("Error: Missing user ID")
             return None
 
-        query = "SELECT user_id, session_count FROM users WHERE user_id = %s;"
+        query = "SELECT session_count FROM users WHERE user_id = %s;"
         try:
             result = self.db.execute(query, (user_id,), fetch=True)
             if result:
-                return {"user_id": result[0][0], "session_count": result[0][1]}
+                return result[0][0]
             logger.warning(f"User with ID {user_id} not found.")
             return None
         except Exception as e:
@@ -91,30 +91,24 @@ class UserManager:
             logger.error(f"Error retrieving users: {e}", exc_info=True)
             return []
 
-    def update_user_session_count(self, user_id: str) -> bool:
+    def start_user_session(self, user_id: str):
         """Increments the session count for the user by 1."""
         if not user_id:
             logger.error("Error: Missing user ID")
             return False
 
         # Check if user exists first
-        user_info = self.get_user_session_count(user_id)
-        if not user_info:
-            logger.warning(f"Update failed: User {user_id} not found.")
-            return False
-
-        # Retrieve the current session count and increment it by 1
-        current_session_count = user_info.get("session_count", 0)
-        new_session_count = current_session_count + 1
+        current_session_count = self.get_user_session_count(user_id)
+        new_session_count = int(current_session_count) + 1
 
         query = "UPDATE users SET session_count = %s WHERE user_id = %s;"
         try:
             self.db.execute(query, (new_session_count, user_id))
             logger.info(f"Incremented session count for user {user_id} to {new_session_count}.")
-            return True
+            return new_session_count
         except Exception as e:
             logger.error(f"Error updating session count: {e}", exc_info=True)
-            return False
+            return None
 
 
     def update_user_activities(self, user_id: str, new_activities: List[str]) -> bool:
