@@ -21,8 +21,6 @@ from flask import Flask, render_template,  send_from_directory, request, jsonify
 from flask_socketio import SocketIO, join_room, leave_room
 
 
-
-
 db_manager = PostgresDBManager()
 checkpointer = PostgresCheckpointerManager(db_manager).get_checkpointer()
 reminder_manager = ReminderManager(db_manager, base_url="http://127.0.0.1:8000")
@@ -33,6 +31,15 @@ response_manager = ResponseManager(
 conversation_graph = ConversationGraph(llm=get_llm(), response_manager=response_manager, checkpointer=checkpointer).compile()
 processor = ConversationProcessor(conversation_graph)
 user_manager = UserManager(db_manager)
+
+
+def handle_exit(*args):
+    print("Shutting down gracefully...")
+    db_manager.close()
+
+
+signal.signal(signal.SIGINT, handle_exit)
+signal.signal(signal.SIGTERM, handle_exit)
 
 active_sessions = {}
 
@@ -137,7 +144,7 @@ def start_session():
     if not user_info:
         return jsonify({"error": "Invalid User ID"}), 404
 
-    session_count = user_manager.get_user_session_count(user_id)
+    session_count = user_manager.start_user_session(user_id)
 
     thread_id = f"tid_{session_count}_{user_id}"
 
