@@ -4,6 +4,8 @@ Issues:
 3. Followups should indicate that I sent a reminder for activity instead I suggested activity
 4. Feedback not getting stored in DB
 -----------
+P1:
+1. Testing
 P2:
 1. Implement cross thread semantic memory.
 2. Checkpoint clean up.
