@@ -17,11 +17,11 @@ import datetime
 import threading
 import time
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template,  send_from_directory, request, jsonify
 from flask_socketio import SocketIO, join_room, leave_room
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="ui", template_folder="ui")
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 db_manager = PostgresDBManager()
@@ -41,6 +41,11 @@ active_sessions = {}
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    return send_from_directory("ui", filename)  # Serves CSS/JS correctly
 
 
 @app.route("/send-reminder/", methods=["POST"])
