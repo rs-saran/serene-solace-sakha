@@ -5,30 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with Sakha</title>
     <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Sakha</h1>
+    <div class="app-container">
+        <div class="chat-app">
+            <header class="app-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <h1>Sakha</h1>
+                </div>
+                <div id="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Not connected</span>
+                </div>
+            </header>
 
-        <div class="container mt-3">
-            <button onclick="window.location.href='/register'" class="btn btn-secondary">
-                New User? Register Here
-            </button>
-        </div>
+            <div class="user-auth" id="user-auth">
+                <div class="welcome-message">
+                    <h2>Welcome to Sakha</h2>
+                    <p>Your AI companion for meaningful conversations</p>
+                </div>
 
-        <div class="input-group">
-            <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
-            <button id="start-btn" class="btn">Start Chat</button>
-        </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
+                    </div>
+                    <button id="start-btn" class="btn primary-btn">
+                        <span>Start Chat</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
 
-        <p id="thread-id-display"></p>
-        <div id="status-indicator">Not connected</div>
+                <div class="register-link">
+                    <p>New to Sakha?</p>
+                    <button onclick="window.location.href='/register'" class="btn secondary-btn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register Here</span>
+                    </button>
+                </div>
+            </div>
 
-        <div id="chat-box" class="chat-container"></div>
+            <div class="chat-interface hidden" id="chat-interface">
+                <p id="thread-id-display" class="thread-id"></p>
 
-        <div class="input-group">
-            <input type="text" id="message-input" class="form-control" placeholder="Type your message..." disabled>
-            <button id="send-btn" class="btn" disabled>Send</button>
+                <div id="chat-box" class="chat-container">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <div class="message-composer">
+                    <div class="input-wrapper">
+                        <input type="text" id="message-input" class="form-control" placeholder="Type your message..." disabled>
+                        <button id="send-btn" class="btn send-btn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
