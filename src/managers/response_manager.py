@@ -108,7 +108,7 @@ class ResponseManager:
                         user_id,
                         thread_id,
                         response.activityFeedback.activity,
-                        response.activityFeedback.is_completed,
+                        response.activityFeedback.completed,
                         response.activityFeedback.enjoyment_score,
                         response.activityFeedback.reason_skipped,
                     ),
