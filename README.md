@@ -52,8 +52,7 @@ Sakha is a friendly AI chatbot designed to help users improve their mood by sugg
 1. **Enhanced Personalization:** Improve activity recommendations by leveraging user history and behavioral patterns.  
 2. **Cross session Memory:** Allow the chatbot to remember past interactions across sessions for more natural and engaging conversations
 3. **Improved Reminder System:** Add features like recurring reminders, snooze options based on user availability.
-4. **Improved UI:** Improving UI/UX for a more engaging and interactive chatbot experience.
-5. **Dynamic Chat Flow control:** Enhance chat flow management by allowing dynamic switching based on user interactions rather than relying solely on backend control.
+4. **Dynamic Chat Flow control:** Enhance chat flow management by allowing dynamic switching based on user interactions rather than relying solely on backend control.
 
 ## 💡 Usage
 - Start chatting with Sakha and receive activity suggestions.
