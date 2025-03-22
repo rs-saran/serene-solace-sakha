@@ -3,8 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from src.response_templates.activity_feedback import ActivityFeedback
-from src.response_templates.activity_reminder_config import \
-    ActivityReminderConfig
+from src.response_templates.activity_reminder_config import ActivityReminderConfig
 
 
 class SakhaResponseForASFlow(BaseModel):
@@ -46,6 +45,7 @@ class SakhaResponseForFUFlow(BaseModel):
         None,
         description="Optional Activity Feedback info, fill it only after you collect the details from user",
     )
+
 
 class SakhaResponseForError(BaseModel):
     """Response template to follow"""

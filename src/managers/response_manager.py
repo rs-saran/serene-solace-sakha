@@ -1,9 +1,12 @@
 from src.logger import get_logger
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
-from src.response_templates.sakha_template import (SakhaResponseForASFlow,
-                                                   SakhaResponseForFUFlow,
-                                                   SakhaResponseForRemFlow, SakhaResponseForError)
+from src.response_templates.sakha_template import (
+    SakhaResponseForASFlow,
+    SakhaResponseForError,
+    SakhaResponseForFUFlow,
+    SakhaResponseForRemFlow,
+)
 
 logger = get_logger(__name__)
 
@@ -12,7 +15,7 @@ class ResponseManager:
     """Handles chatbot responses and integrates with ReminderManager."""
 
     def __init__(
-            self, reminder_manager: ReminderManager, db_manager: PostgresDBManager
+        self, reminder_manager: ReminderManager, db_manager: PostgresDBManager
     ):
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
@@ -53,9 +56,9 @@ class ResponseManager:
         Stores the reminder if all agreement conditions are met.
         """
         if (
-                response.didUserAgreeOnActivity
-                and response.didUserAgreeOnTime
-                and response.didUserAgreeOnDuration
+            response.didUserAgreeOnActivity
+            and response.didUserAgreeOnTime
+            and response.didUserAgreeOnDuration
         ):
             if response.reminder:
                 try:
@@ -130,4 +133,6 @@ class ResponseManager:
         Handles the Reminder Flow.
         Currently, it only determines whether to suggest alternatives.
         """
-        logger.info(f"Processing error msg for user {user_id}, thread {thread_id}. \n {response.error}")
+        logger.info(
+            f"Processing error msg for user {user_id}, thread {thread_id}. \n {response.error}"
+        )

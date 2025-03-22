@@ -52,7 +52,9 @@ class ChatEngine:
         if self.exchange == 0 and self.flow in ("reminder", "follow-up"):
             self.conversation_history.append(AIMessage(content=response))
         else:
-            self.conversation_history.extend([HumanMessage(content=user_input), AIMessage(content=response)])
+            self.conversation_history.extend(
+                [HumanMessage(content=user_input), AIMessage(content=response)]
+            )
 
     def chat(self, conversation_state: ConversationState):
         try:

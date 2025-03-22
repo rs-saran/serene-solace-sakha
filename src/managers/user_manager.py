@@ -104,12 +104,13 @@ class UserManager:
         query = "UPDATE users SET session_count = %s WHERE user_id = %s;"
         try:
             self.db.execute(query, (new_session_count, user_id))
-            logger.info(f"Incremented session count for user {user_id} to {new_session_count}.")
+            logger.info(
+                f"Incremented session count for user {user_id} to {new_session_count}."
+            )
             return new_session_count
         except Exception as e:
             logger.error(f"Error updating session count: {e}", exc_info=True)
             return None
-
 
     def update_user_activities(self, user_id: str, new_activities: List[str]) -> bool:
         """Updates a user's preferred activities if they exist."""

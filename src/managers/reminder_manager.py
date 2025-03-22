@@ -71,11 +71,12 @@ class ReminderManager:
         utc = pytz.utc  # APScheduler uses UTC
         now_ist = datetime.now(ist)
 
-        start_time_ist = ist.localize(datetime(now_ist.year, now_ist.month, now_ist.day, hour, minute))
+        start_time_ist = ist.localize(
+            datetime(now_ist.year, now_ist.month, now_ist.day, hour, minute)
+        )
         start_time_utc = start_time_ist.astimezone(utc)  # Convert IST to UTC
 
         logger.info(f"Scheduling Reminder: IST={start_time_ist}, UTC={start_time_utc}")
-
 
         if send_reminder and start_time_ist > now_ist:
             self.scheduler.add_job(
@@ -202,9 +203,11 @@ class ReminderManager:
         jobs = self.scheduler.get_jobs()
         job_list = []
         for job in jobs:
-            job_list.append({
-                "id": job.id,
-                "next_run_time": str(job.next_run_time),
-                "args": job.args
-            })
+            job_list.append(
+                {
+                    "id": job.id,
+                    "next_run_time": str(job.next_run_time),
+                    "args": job.args,
+                }
+            )
         return job_list
