@@ -1,8 +1,5 @@
 Issues:
 1. Current reminder flow fails if user has asked to set multiple reminders for different activities doesn't work correctly
-2. Reminders and followups are getting prefixes
-3. Followups should indicate that I sent a reminder for activity instead I suggested activity
-4. Feedback not getting stored in DB
 -----------
 P1:
 1. Testing
