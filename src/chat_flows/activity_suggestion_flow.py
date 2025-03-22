@@ -2,8 +2,10 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from src.chat_flows.chat_flow import ChatFlow
 from src.logger import get_logger
-from src.managers.prompt_manager import (get_activity_suggestion_prompt,
-                                         get_sakha_char_prompt)
+from src.managers.prompt_manager import (
+    get_activity_suggestion_prompt,
+    get_sakha_char_prompt,
+)
 from src.response_templates.sakha_template import SakhaResponseForASFlow
 from src.utils import get_current_time_ist
 
@@ -56,5 +58,7 @@ class ActivitySuggestionFlow(ChatFlow):
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
-            return {"replyToUser": "Sorry, I ran into an issue. Can you try again?",
-                    "error": f"Error generating response in ASFlow"}
+            return {
+                "replyToUser": "Sorry, I ran into an issue. Can you try again?",
+                "error": f"Error generating response in ASFlow",
+            }

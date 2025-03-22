@@ -1,5 +1,6 @@
 import logging
 import sys
+
 from colorama import Fore, Style, init
 
 # Initialize colorama (for Windows compatibility)
@@ -23,13 +24,16 @@ class ColoredFormatter(logging.Formatter):
         log_message = super().format(record)
         return f"{log_color}{log_message}{Style.RESET_ALL}"  # Reset color after log
 
+
 # Set up logging
 def get_logger(name: str):
     """Returns a logger with colored output."""
     logger = logging.getLogger(name)
     if not logger.hasHandlers():  # Prevent duplicate handlers
         handler = logging.StreamHandler(sys.stdout)
-        formatter = ColoredFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = ColoredFormatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)

@@ -13,7 +13,7 @@ class ActivityFeedback(BaseModel):
     activity: str = Field(description="The name of the activity suggested to the user.")
     completed: Optional[bool] = Field(
         None,
-        description="Indicates whether the user completed the activity (True) or skipped it (False). This should be determined through follow-up questions."
+        description="Indicates whether the user completed the activity (True) or skipped it (False). This should be determined through follow-up questions.",
     )
     enjoyment_score: Optional[int] = Field(
         None,
