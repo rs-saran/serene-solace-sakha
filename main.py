@@ -96,7 +96,7 @@ def send_reminder():
         )
 
         # Send reminder via WebSocket
-        socketio.emit("bot_message", {"text": f"Reminder: {response}"}, room=thread_id)
+        socketio.emit("bot_message", {"text": f"{response}"}, room=thread_id)
 
         return jsonify({"response": response})
 
@@ -124,7 +124,7 @@ def send_follow_up():
         )
 
         # Send follow-up via WebSocket
-        socketio.emit("bot_message", {"text": f"Follow-up: {response}"}, room=thread_id)
+        socketio.emit("bot_message", {"text": f"{response}"}, room=thread_id)
 
         return jsonify({"response": response})
 
