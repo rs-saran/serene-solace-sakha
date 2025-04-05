@@ -16,13 +16,9 @@ class PostgresDBManager:
         db_config=None,
     ):
         if db_config is None:
-            db_config = {
-                "dbname": "postgres",
-                "user": "postgres",
-                "password": "1234",
-                "host": "localhost",
-                "port": "5432",
-            }
+            raise ValueError("db_config is required for postgres_db_manager")
+        if any(value is None for value in db_config.values()):
+            raise ValueError("All values in db_config are required for postgres_db_manager")
         if cls._instance is None:
             cls._instance = super(PostgresDBManager, cls).__new__(cls)
             try:
