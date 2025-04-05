@@ -1,7 +1,8 @@
-sakha-env
+venv
 **/__pycache__/
 *.pyc
 *.pyo
 *.pyd
 dev_test.ipynb
 .idea
+.env

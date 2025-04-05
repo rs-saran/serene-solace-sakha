@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 
 import pytz
-from IPython.display import Image, display
+# from IPython.display import Image, display
 from langchain_groq import ChatGroq
 
 
@@ -34,18 +34,17 @@ def exchanges_pretty(exchanges, summary=False):
     return "\n".join(li)
 
 
-def display_graph(graph):
-    try:
-        display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
-    except Exception as e:
-        # This requires some extra dependencies and is optional
-        print(f"Error: {e}")
-        pass
+# def display_graph(graph):
+#     try:
+#         display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
+#     except Exception as e:
+#         # This requires some extra dependencies and is optional
+#         print(f"Error: {e}")
+#         pass
 
 
-def get_llm():
-    ss_agent_key = "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"
-    llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=ss_agent_key)
+def get_llm(groq_api_key):
+    llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=groq_api_key)
 
     return llm
 

@@ -1,8 +1,9 @@
 import signal
-
+import sys
+import os
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room
-
+from dotenv import load_dotenv
 from src.core.conversation_graph import ConversationGraph
 from src.core.conversation_processor import ConversationProcessor
 from src.managers.postgres_checkpoint_manager import \
@@ -13,7 +14,20 @@ from src.managers.response_manager import ResponseManager
 from src.managers.user_manager import UserManager
 from src.utils import get_llm
 
-db_manager = PostgresDBManager()
+
+load_dotenv()
+
+
+db_config = {
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT"),
+}
+groq_api_key = os.getenv("GROQ_API_KEY")
+
+db_manager = PostgresDBManager(db_config=db_config)
 checkpointer = PostgresCheckpointerManager(db_manager).get_checkpointer()
 reminder_manager = ReminderManager(db_manager, base_url="http://127.0.0.1:8000")
 response_manager = ResponseManager(
@@ -21,7 +35,7 @@ response_manager = ResponseManager(
 )
 
 conversation_graph = ConversationGraph(
-    llm=get_llm(), response_manager=response_manager, checkpointer=checkpointer
+    llm=get_llm(groq_api_key=groq_api_key), response_manager=response_manager, checkpointer=checkpointer
 ).compile()
 processor = ConversationProcessor(conversation_graph)
 user_manager = UserManager(db_manager)
@@ -30,6 +44,7 @@ user_manager = UserManager(db_manager)
 def handle_exit(*args):
     print("Shutting down gracefully...")
     db_manager.close()
+    sys.exit(0)
 
 
 signal.signal(signal.SIGINT, handle_exit)
