@@ -22,23 +22,31 @@ Sakha is a friendly AI chatbot designed to help users improve their mood by sugg
 - **Flask** – Serves as a lightweight interface for user interaction.
 - **APScheduler** – Schedules and triggers reminders.
 
-## 🚀 How to Run the App
-1️⃣ Clone the repository:
+## 🚀 How to Run the App  
+1️⃣ Clone the repository:  
    ```bash
    git clone https://github.com/your-repo/sakha.git
    cd sakha
    ```
-2️⃣ Install dependencies:
+
+2️⃣ Install dependencies:  
    ```bash
    pip install -r requirements.txt
    ```
-3️⃣ Run the chatbot:
+
+3️⃣ Set up environment variables:  
+- Copy the example `.env` file and fill in the required values:
+   ```bash
+   cp .env.example .env
+   ```
+
+4️⃣ Run the chatbot:  
    ```bash
    python main.py
    ```
-4️⃣ Navigate to http://localhost:8000/ to register and start chatting.
 
-⚠️ Postgres setup details to be added here
+5️⃣ Navigate to [http://localhost:8000/](http://localhost:8000/) to register and start chatting.
+
 
 ## ⚠️ Limitations
 
