@@ -4,12 +4,13 @@ from src.chat_flows.chat_flow_manager import ChatFlowManager
 from src.logger import get_logger
 from src.response_templates.conversation_state import ConversationState
 from src.utils import exchanges_pretty
+from src.core.conversation_summarizer import ConversationSummarizer
 
 logger = get_logger(__name__)
 
 
 class ChatEngine:
-    def __init__(self, llm, response_manager, summarizer):
+    def __init__(self, llm, response_manager):
         self.llm = llm
         self.conversation_history = []
         self.latest_exchanges = []
@@ -18,7 +19,7 @@ class ChatEngine:
         self.flow = "activity_suggestion"
         self.chat_flow_manager = ChatFlowManager(llm)
         self.response_manager = response_manager
-        self.summarizer = summarizer
+        self.summarizer = ConversationSummarizer(llm)
         self.activity_details = None
         self.exc_window = 10  # for summarizer
 
