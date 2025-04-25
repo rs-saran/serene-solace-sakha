@@ -19,3 +19,5 @@ class ConversationState(TypedDict):
     flow: str
     activity_details: dict
     to_user: str
+    conversation_summary: str
+    latest_exchanges: list[AnyMessage]

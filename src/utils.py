@@ -22,9 +22,9 @@ def get_current_time_ist_30min_lag():
 
 def exchanges_pretty(exchanges, summary=False):
     li = []
-    c = "assistant"
+    c = "Sakha"
     if summary:
-        c = "assistant"
+        c = "Sakha"
     for exc in exchanges:
         if exc.type == "ai":
             e = f"{c}: {exc.content}"

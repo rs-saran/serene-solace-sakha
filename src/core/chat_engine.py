@@ -9,26 +9,31 @@ logger = get_logger(__name__)
 
 
 class ChatEngine:
-    def __init__(self, llm, response_manager):
+    def __init__(self, llm, response_manager, summarizer):
         self.llm = llm
         self.conversation_history = []
+        self.latest_exchanges = []
+        self.conversation_summary = None
         self.exchange = 0
         self.flow = "activity_suggestion"
         self.chat_flow_manager = ChatFlowManager(llm)
         self.response_manager = response_manager
+        self.summarizer = summarizer
         self.activity_details = None
+        self.exc_window = 10  # for summarizer
 
     def generate_response(self, user_input, user_id, thread_id, user_info):
         try:
-            conversation_history_pretty = exchanges_pretty(self.conversation_history)
+            latest_exchanges_pretty = exchanges_pretty(self.latest_exchanges)
             logger.info(f"[User-{user_id}] Input: {user_input}")
 
             chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
             raw_model_response = chat_flow.generate_response(
                 self.exchange,
                 user_input,
-                conversation_history_pretty,
+                latest_exchanges_pretty,
                 user_info,
+                self.conversation_summary,
                 self.activity_details,
             )
 
@@ -68,8 +73,24 @@ class ChatEngine:
             self.conversation_history = conversation_state.get(
                 "conversation_history", []
             )
+            self.latest_exchanges = conversation_state.get(
+                "latest_exchanges", []
+            )
+            self.conversation_summary = conversation_state.get(
+                "conversation_summary", ""
+            )
             self.exchange = conversation_state.get("exchange", 0)
             self.flow = conversation_state.get("flow", "activity_suggestion")
+
+            reset_exchange = 1
+
+            if self.exchange > 0 and self.exchange % self.exc_window == 0:
+                reset_exchange = self.exc_window
+                self.conversation_summary = self.summarizer.summarize_conversation(self.latest_exchanges, self.conversation_summary)
+
+            self.latest_exchanges = self.conversation_history[(2 * (reset_exchange - 1)):]
+
+
 
             logger.info(
                 f"Starting conversation with User-{user_id} | Flow: {self.flow}"

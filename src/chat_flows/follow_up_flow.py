@@ -18,9 +18,10 @@ class FollowUpFlow(ChatFlow):
         self,
         exchange,
         user_input,
-        conversation_history_pretty,
+        latest_exchanges_pretty,
         user_info,
-        activity_details,
+        conversation_summary="",
+        activity_details=None,
     ):
         try:
             logger.info(f"Generating follow-up response for user_input: {user_input}")
@@ -31,7 +32,7 @@ class FollowUpFlow(ChatFlow):
                     SystemMessage(f"User Info: {user_info}"),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(
-                        f"Conversation History:\n{conversation_history_pretty}"
+                        f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     SystemMessage(
                         f"Previously, you suggested an activity to the user. "
@@ -51,7 +52,7 @@ class FollowUpFlow(ChatFlow):
                         f"after feedback is collected. Do not suggest more activities if the user is feeling fine."
                     ),
                     SystemMessage(
-                        f"Conversation History:\n{conversation_history_pretty}"
+                        f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     HumanMessage(user_input),
                 ]

@@ -18,8 +18,9 @@ class ActivitySuggestionFlow(ChatFlow):
         self,
         exchange,
         user_input,
-        conversation_history_pretty,
+        latest_exchanges_pretty,
         user_info,
+        conversation_summary="",
         activity_details=None,
     ):
         try:
@@ -38,16 +39,28 @@ class ActivitySuggestionFlow(ChatFlow):
                     HumanMessage(user_input),
                 ]
             else:
-                chat_prompt_msgs = [
-                    SystemMessage(get_sakha_char_prompt()),
-                    SystemMessage(get_activity_suggestion_prompt()),
-                    SystemMessage(f"User Info: {user_info}"),
-                    SystemMessage(f"Current time: {get_current_time_ist()}"),
-                    SystemMessage(
-                        f"Conversation History:<conversation_history>{conversation_history_pretty}</conversation_history>"
-                    ),
-                    HumanMessage(user_input),
-                ]
+                if conversation_summary == "":
+                    chat_prompt_msgs = [
+                        SystemMessage(get_sakha_char_prompt()),
+                        SystemMessage(get_activity_suggestion_prompt()),
+                        SystemMessage(f"User Info: {user_info}"),
+                        SystemMessage(f"Current time: {get_current_time_ist()}"),
+                        SystemMessage(
+                            f"Conversation History:<conversation_history>{latest_exchanges_pretty}</conversation_history>"
+                        ),
+                        HumanMessage(user_input),
+                    ]
+                else:
+                    chat_prompt_msgs = [
+                        SystemMessage(get_sakha_char_prompt()),
+                        SystemMessage(get_activity_suggestion_prompt()),
+                        SystemMessage(f"User Info: {user_info}"),
+                        SystemMessage(f"Current time: {get_current_time_ist()}"),
+                        SystemMessage(
+                            f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
+                        ),
+                        HumanMessage(user_input),
+                    ]
 
             model_response = self.llm.with_structured_output(
                 SakhaResponseForASFlow

@@ -15,9 +15,10 @@ class ReminderFlow(ChatFlow):
         self,
         exchange,
         user_input,
-        conversation_history_pretty,
+        latest_exchanges_pretty,
         user_info,
-        activity_details,
+        conversation_summary="",
+        activity_details=None,
     ):
         try:
             logger.info(
@@ -29,7 +30,7 @@ class ReminderFlow(ChatFlow):
                     SystemMessage(get_sakha_char_prompt()),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(
-                        f"Conversation History:\n{conversation_history_pretty}"
+                        f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     SystemMessage(
                         f"Previously, you set a reminder for {activity_details}. It’s time! "
@@ -41,7 +42,7 @@ class ReminderFlow(ChatFlow):
                     SystemMessage(get_sakha_char_prompt()),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(
-                        f"Conversation History:\n{conversation_history_pretty}"
+                        f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     SystemMessage(
                         f"Reminder details: {activity_details}. Motivate the user to complete the activity. "
