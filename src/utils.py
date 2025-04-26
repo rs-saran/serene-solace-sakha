@@ -44,7 +44,8 @@ def exchanges_pretty(exchanges, summary=False):
 
 
 def get_llm(groq_api_key):
-    llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=groq_api_key)
+    models_list = ["llama-3.3-70b-versatile", 'gemma2-9b-it', 'meta-llama/llama-4-maverick-17b-128e-instruct']
+    llm = ChatGroq(model=models_list[0], api_key=groq_api_key)
 
     return llm
 
