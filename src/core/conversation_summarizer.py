@@ -67,13 +67,13 @@ class ConversationSummarizer:
         formatted_latest_exchanges = exchanges_pretty(latest_exchanges)
         prompt = self._create_summary_prompt(formatted_latest_exchanges, conversation_summary)
 
-        logger.info(
-            f"Generating summary ...  {prompt}"
-        )
+        # logger.info(
+        #     f"Generating summary ...  {prompt}"
+        # )
         try:
             summary_response = self.llm.invoke([("user", prompt)])
             logger.info(
-                f"Summary generated"
+                f"Summary generated: {summary_response.content}"
             )
             return summary_response.content
         except Exception as e:

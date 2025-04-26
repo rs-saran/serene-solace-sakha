@@ -1,4 +1,5 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.callbacks import UsageMetadataCallbackHandler
 
 from src.chat_flows.chat_flow import ChatFlow
 from src.logger import get_logger
@@ -61,12 +62,12 @@ class ActivitySuggestionFlow(ChatFlow):
                         ),
                         HumanMessage(user_input),
                     ]
-
+            callback = UsageMetadataCallbackHandler()
             model_response = self.llm.with_structured_output(
                 SakhaResponseForASFlow
-            ).invoke(chat_prompt_msgs)
-
+            ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
             logger.info("Successfully generated response in AS Flow")
+            print(callback.usage_metadata)
             return model_response
 
         except Exception as e:

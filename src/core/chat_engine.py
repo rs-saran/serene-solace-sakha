@@ -22,11 +22,15 @@ class ChatEngine:
         self.summarizer = ConversationSummarizer(llm)
         self.activity_details = None
         self.exc_window = 10  # for summarizer
-
+        self.reset_exchange = 1
     def generate_response(self, user_input, user_id, thread_id, user_info):
         try:
             latest_exchanges_pretty = exchanges_pretty(self.latest_exchanges)
-            logger.info(f"[User-{user_id}] Input: {user_input}")
+            # logger.info(f"latest exchanges from gen response function: {self.latest_exchanges}")
+            # # logger.info(f"latest conv history from gen response function: {self.conversation_history}")
+            # logger.info(f"latest exchanges from gen response function: {latest_exchanges_pretty}")
+            #
+            # logger.info(f"[User-{user_id}] Input: {user_input}")
 
             chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
             raw_model_response = chat_flow.generate_response(
@@ -83,15 +87,14 @@ class ChatEngine:
             self.exchange = conversation_state.get("exchange", 0)
             self.flow = conversation_state.get("flow", "activity_suggestion")
 
-            reset_exchange = 1
-
             if self.exchange > 0 and self.exchange % self.exc_window == 0:
-                reset_exchange = self.exc_window
+                self.reset_exchange = self.exc_window
+                # logger.info(f"latest exchanges passed from chat function: {self.latest_exchanges}")
                 self.conversation_summary = self.summarizer.summarize_conversation(self.latest_exchanges, self.conversation_summary)
 
-            self.latest_exchanges = self.conversation_history[(2 * (reset_exchange - 1)):]
+            self.latest_exchanges = self.conversation_history[(2 * (self.reset_exchange - 1)):]
 
-
+            # logger.info(f"latest exchanges chat function: {self.latest_exchanges}")
 
             logger.info(
                 f"Starting conversation with User-{user_id} | Flow: {self.flow}"
@@ -110,6 +113,8 @@ class ChatEngine:
                 "exchange": self.exchange,
                 "activity_details": self.activity_details,
                 "to_user": model_response,
+                "latest_exchanges": self.latest_exchanges,
+                "conversation_summary": self.conversation_summary
             }
 
         except Exception as e:
