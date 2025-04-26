@@ -20,6 +20,8 @@ class ConversationSummarizer:
                                 3. Key Things Sakha Said or Did:
                                 4. Decisions or Plans Made:
                                 5. Unresolved Topics or Follow-Ups:
+                                
+                                Note: Do not write any other lines apart from those requested. Do not suggest what Sakha should do.
                                 """
 
     def _create_summary_prompt(self, latest_exchanges: str, conversation_summary: str) -> str:
