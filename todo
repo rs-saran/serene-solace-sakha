@@ -4,11 +4,12 @@
 4. Eval framework for sakha evaluation for user testing
 --------------
 Issues:
-1. Current reminder flow fails if user has asked to set multiple reminders for different activities doesn't work correctly
+1. Current reminder flow fails if user has asked to set multiple reminders for different activities doesn't work correctly. conversation state only stores the latest activity info
 -----------
 P1:
 1. Testing
 P2:
 1. Implement cross thread semantic memory.
 2. Checkpoint clean up.
+3. Add token tracker and move summarization based on tokens instead of exchanges
 -----------
