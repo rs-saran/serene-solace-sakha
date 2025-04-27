@@ -98,13 +98,14 @@ def send_reminder():
         data = request.json
         thread_id = data.get("thread_id")
         user_id = data.get("user_id")
+        activity_details = data.get("activity_details")
 
         if not thread_id or not user_id:
             return jsonify({"error": "Missing thread_id or user_id"}), 400
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "reminder", "exchange": 0},
+            values={"flow": "reminder", "exchange": 0, "activity_details": activity_details},
         )
         response = processor.process_input(
             "Reminder Triggered", thread_id=thread_id, user_id=user_id
@@ -126,13 +127,14 @@ def send_follow_up():
         data = request.json
         thread_id = data.get("thread_id")
         user_id = data.get("user_id")
+        activity_details = data.get("activity_details")
 
         if not thread_id or not user_id:
             return jsonify({"error": "Missing thread_id or user_id"}), 400
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "follow-up", "exchange": 0},
+            values={"flow": "follow-up", "exchange": 0, "activity_details": activity_details},
         )
         response = processor.process_input(
             "Follow-up Triggered", thread_id=thread_id, user_id=user_id

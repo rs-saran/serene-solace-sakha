@@ -31,34 +31,35 @@ class ReminderManager:
             logger.error(f"Error sending request to {endpoint}: {e}", exc_info=True)
             return None
 
-    def _send_reminder(self, user_id: str, thread_id: str, message: str):
+    def _send_reminder(self, user_id: str, thread_id: str, activity_details: str):
         """Sends a reminder notification."""
         self._send_request(
             "send-reminder",
-            {"user_id": user_id, "thread_id": thread_id, "message": message},
+            {"user_id": user_id, "thread_id": thread_id, "activity_details": activity_details},
         )
 
-    def _send_follow_up(self, user_id: str, thread_id: str, message: str):
+    def _send_follow_up(self, user_id: str, thread_id: str, activity_details: str):
         """Sends a follow-up notification."""
         self._send_request(
             "send-follow-up",
-            {"user_id": user_id, "thread_id": thread_id, "message": message},
+            {"user_id": user_id, "thread_id": thread_id, "activity_details": activity_details},
         )
 
-    def _update_reminder_status(self, reminder_id: int, column: str):
+    def _update_activity_status(self, activity_id: int, column: str):
         """Marks a reminder as sent."""
-        query = f"UPDATE reminders SET {column} = TRUE WHERE id = %s"
+        query = f"UPDATE activity_log SET {column} = TRUE WHERE id = %s"
         try:
-            self.db_manager.execute(query, (reminder_id,))
-            logger.info(f"Reminder ID {reminder_id}: {column} updated to TRUE.")
+            self.db_manager.execute(query, (activity_id,))
+            logger.info(f"Reminder ID {activity_id}: {column} updated to TRUE.")
         except Exception as e:
             logger.error(f"Error updating reminder status: {e}", exc_info=True)
 
     def _schedule_reminder(
         self,
-        reminder_id: int,
+        activity_id: int,
         user_id: str,
         thread_id: str,
+        user_situation: str,
         activity: str,
         hour: int,
         minute: int,
@@ -78,18 +79,19 @@ class ReminderManager:
 
         logger.info(f"Scheduling Reminder: IST={start_time_ist}, UTC={start_time_utc}")
 
+        activity_details = f"<activity_details>{{'activity_id': {activity_id}, 'user_situation': '{user_situation}', 'activity': '{activity}'}}</activity_details>"
         if send_reminder and start_time_ist > now_ist:
             self.scheduler.add_job(
                 self._execute_reminder,
                 "date",
                 run_date=start_time_utc,
                 args=[
-                    reminder_id,
+                    activity_id,
                     user_id,
                     thread_id,
-                    f"Reminder: Time for {activity}!",
+                    activity_details
                 ],
-                id=f"reminder_{reminder_id}",
+                id=f"reminder_{activity_id}",
             )
             logger.info(f"Scheduled reminder for {activity} at {hour}:{minute} IST.")
 
@@ -101,38 +103,38 @@ class ReminderManager:
                     "date",
                     run_date=followup_time,
                     args=[
-                        reminder_id,
+                        activity_id,
                         user_id,
                         thread_id,
-                        f"Follow-up: How was {activity}?",
+                        activity_details,
                     ],
-                    id=f"followup_{reminder_id}",
+                    id=f"followup_{activity_id}",
                 )
                 logger.info(
                     f"Scheduled follow-up for {activity} at {followup_time.strftime('%H:%M')} IST."
                 )
 
     def _execute_reminder(
-        self, reminder_id: int, user_id: str, thread_id: str, message: str
+        self, activity_id: int, user_id: str, thread_id: str, activity_details: str
     ):
         """Executes the reminder job."""
-        self._send_reminder(user_id, thread_id, message)
-        self._update_reminder_status(reminder_id, "is_reminder_sent")
+        self._send_reminder(user_id, thread_id, activity_details)
+        self._update_activity_status(activity_id, "is_reminder_sent")
 
     def _execute_followup(
-        self, reminder_id: int, user_id: str, thread_id: str, message: str
+        self, activity_id: int, user_id: str, thread_id: str, activity_details: str
     ):
         """Executes the follow-up job."""
-        self._send_follow_up(user_id, thread_id, message)
-        self._update_reminder_status(reminder_id, "is_followup_sent")
+        self._send_follow_up(user_id, thread_id, activity_details)
+        self._update_activity_status(activity_id, "is_followup_sent")
 
     def _load_pending_reminders(self):
         """Loads and schedules pending reminders from the database."""
         query = """
-        SELECT id, user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup
-        FROM reminders
-        WHERE (send_reminder = TRUE AND is_reminder_sent = FALSE)
-        OR (send_followup = TRUE AND is_followup_sent = FALSE)
+        SELECT id, user_id, thread_id, user_situation, activity, hour, minute, duration, send_reminder, send_followup
+        FROM activity_log
+        WHERE ((send_reminder = TRUE AND is_reminder_sent = FALSE)
+        OR (send_followup = TRUE AND is_followup_sent = FALSE)) AND DATE(created_at) = CURRENT_DATE
         """
         try:
             rows = self.db_manager.execute(query, fetch=True)
@@ -151,6 +153,7 @@ class ReminderManager:
         self,
         user_id: str,
         thread_id: str,
+        user_situation: str,
         activity: str,
         hour: int,
         minute: int,
@@ -160,8 +163,8 @@ class ReminderManager:
     ) -> Optional[int]:
         """Adds a new reminder to the database and schedules it."""
         query = """
-        INSERT INTO reminders (user_id, thread_id, activity, hour, minute, duration, send_reminder, send_followup)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
+        INSERT INTO activity_log (user_id, thread_id, user_situation, activity, hour, minute, duration, send_reminder, send_followup)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
         """
         try:
             result = self.db_manager.execute(
@@ -169,6 +172,7 @@ class ReminderManager:
                 (
                     user_id,
                     thread_id,
+                    user_situation,
                     activity,
                     hour,
                     minute,
@@ -179,11 +183,12 @@ class ReminderManager:
                 fetch=True,
             )
             if result:
-                reminder_id = result[0][0]
+                activity_id = result[0][0]
                 self._schedule_reminder(
-                    reminder_id,
+                    activity_id,
                     user_id,
                     thread_id,
+                    user_situation,
                     activity,
                     hour,
                     minute,
@@ -192,7 +197,7 @@ class ReminderManager:
                     send_followup,
                 )
                 logger.info(f"Added reminder for {activity} at {hour}:{minute} IST.")
-                return reminder_id
+                return activity_id
         except Exception as e:
             logger.error(f"Error adding reminder: {e}", exc_info=True)
 

@@ -65,6 +65,7 @@ class ResponseManager:
                     self.reminder_manager.add_reminder(
                         user_id,
                         thread_id,
+                        response.reminder.user_situation,
                         response.reminder.activity,
                         response.reminder.hour,
                         response.reminder.minute,
@@ -74,6 +75,7 @@ class ResponseManager:
                     )
 
                     activity_details = {
+                        "user_situation": response.reminder.user_situation,
                         "activity": response.reminder.activity,
                         "time": f"{response.reminder.hour}:{response.reminder.minute}",
                         "duration": response.reminder.duration,
@@ -98,23 +100,31 @@ class ResponseManager:
         """
         if response.isFeedbackCollectionComplete and response.activityFeedback:
             query = """
-            INSERT INTO activity_feedback (user_id, thread_id, activity, is_completed, enjoyment_score, reason_skipped) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+                UPDATE activity_log
+                SET 
+                    is_completed = %s,
+                    enjoyment_score = %s,
+                    reason_skipped = %s,
+                    feedback_updated_at = CURRENT_TIMESTAMP
+                WHERE 
+                    id = %s AND
+                    user_id = %s AND
+                    thread_id = %s
             """
             try:
                 self.db_manager.execute(
                     query,
                     (
-                        user_id,
-                        thread_id,
-                        response.activityFeedback.activity,
                         response.activityFeedback.completed,
                         response.activityFeedback.enjoyment_score,
                         response.activityFeedback.reason_skipped,
+                        response.activityFeedback.activity_id,
+                        user_id,
+                        thread_id,
                     ),
                 )
                 logger.info(
-                    f"Feedback stored for user {user_id} on activity {response.activityFeedback.activity}."
+                    f"Feedback stored for user {user_id} on activity {response.activityFeedback.activity_id}."
                 )
             except Exception as e:
                 logger.error(

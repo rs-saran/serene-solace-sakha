@@ -5,15 +5,15 @@ from pydantic import BaseModel, Field
 
 class ActivityFeedback(BaseModel):
     """
-    This data should only be recorded after follow-up messages gather details about
+    This data should only be recorded after explicit follow-up messages gather details about
     whether the user completed the activity, their enjoyment level if completed,
     or the reason for skipping if not completed.
     """
 
-    activity: str = Field(description="The name of the activity suggested to the user.")
+    activity_id: int = Field(description="The activity_id present in activity_details")
     completed: Optional[bool] = Field(
         None,
-        description="Indicates whether the user completed the activity (True) or skipped it (False). This should be determined through follow-up questions.",
+        description="Answers whether the user completed the activity (True) or skipped it (False). This should be determined through follow-up questions.",
     )
     enjoyment_score: Optional[int] = Field(
         None,

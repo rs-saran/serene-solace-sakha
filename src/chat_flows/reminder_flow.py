@@ -33,7 +33,8 @@ class ReminderFlow(ChatFlow):
                         f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     SystemMessage(
-                        f"Previously, you set a reminder for {activity_details}. It’s time! "
+                        f"Previously, you set a reminder for an activity for the user. It’s time! "
+                        f"{activity_details}"
                         f"Encourage the user to start their activity with enthusiasm and motivation."
                     ),
                 ]
@@ -45,7 +46,7 @@ class ReminderFlow(ChatFlow):
                         f"Conversation History:\n{latest_exchanges_pretty}"
                     ),
                     SystemMessage(
-                        f"Reminder details: {activity_details}. Motivate the user to complete the activity. "
+                        f"{activity_details}. Motivate the user to complete the activity. "
                         f"If they seem reluctant, suggest small fun modifications to make it more enjoyable "
                         f"or provide alternatives. Otherwise, end the conversation."
                     ),

@@ -36,7 +36,7 @@ class FollowUpFlow(ChatFlow):
                     ),
                     SystemMessage(
                         f"Previously, you suggested an activity to the user. "
-                        f"Activity details: {activity_details}. Check in on the user’s experience—"
+                        f"{activity_details}. Check in on the user’s experience."
                         f"ask if they completed it and how it made them feel."
                     ),
                 ]
@@ -46,8 +46,8 @@ class FollowUpFlow(ChatFlow):
                     SystemMessage(f"User Info: {user_info}"),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(
-                        f"Previously, you suggested an activity to the user. "
-                        f"Activity details: {activity_details}. Now you are following up with the user. "
+                        f"Previously, you suggested an activity to the user. Now you are following up with the user. "
+                        f"{activity_details}"
                         f"Continue the conversation as a friend, collect feedback, and end the conversation "
                         f"after feedback is collected. Do not suggest more activities if the user is feeling fine."
                     ),

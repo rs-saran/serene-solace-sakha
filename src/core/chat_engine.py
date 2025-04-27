@@ -73,7 +73,7 @@ class ChatEngine:
             thread_id = conversation_state.get("thread_id", "dummy_thread_id")
             user_info = conversation_state.get("user_info", "no user_info")
             self.activity_details = conversation_state.get(
-                "activity_details", {"activity": None}
+                "activity_details", "no activity details"
             )
             self.conversation_history = conversation_state.get(
                 "conversation_history", []

@@ -51,10 +51,12 @@ class PostgresDBManager:
         """Creates necessary tables if they do not exist."""
         queries = [
             """
-            CREATE TABLE IF NOT EXISTS reminders (
+            CREATE TABLE IF NOT EXISTS activity_log (
                 id SERIAL PRIMARY KEY,
                 user_id TEXT NOT NULL,
                 thread_id TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                user_situation TEXT NOT NULL,
                 activity TEXT NOT NULL,
                 hour INT NOT NULL,
                 minute INT NOT NULL,
@@ -63,19 +65,11 @@ class PostgresDBManager:
                 send_followup BOOLEAN DEFAULT TRUE,
                 is_reminder_sent BOOLEAN DEFAULT FALSE,
                 is_followup_sent BOOLEAN DEFAULT FALSE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS activity_feedback (
-                id SERIAL PRIMARY KEY,
-                user_id TEXT NOT NULL,
-                thread_id TEXT NOT NULL,
-                activity TEXT NOT NULL,
+                
                 is_completed BOOLEAN DEFAULT FALSE,
-                enjoyment_score INT CHECK (enjoyment_score BETWEEN 1 AND 5),
-                reason_skipped TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                enjoyment_score INT DEFAULT NULL  CHECK ((enjoyment_score BETWEEN 1 AND 5) OR enjoyment_score is null),
+                reason_skipped TEXT DEFAULT NULL,
+                feedback_updated_at TIMESTAMP DEFAULT NULL
             );
             """,
             """
