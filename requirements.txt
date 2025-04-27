@@ -1,11 +1,13 @@
 APScheduler==3.11.0
 black==25.1.0
+fastembed==0.6.1
 Flask-SocketIO==5.3.6
+isort==6.0.0
 langchain-groq==0.2.3
 langgraph==0.2.66
 langgraph-checkpoint-postgres==2.0.15
 psycopg-binary==3.2.5
-webcolors==24.11.1
-pytz==2024.2
 python-dotenv==1.1.0
-isort==6.0.0
+pytz==2024.2
+qdrant-client==1.14.2
+webcolors==24.11.1

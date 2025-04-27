@@ -11,7 +11,7 @@ class SakhaResponseForASFlow(BaseModel):
 
     replyToUser: str = Field(description="Reply to be shown to user")
     didUserAgreeOnActivity: bool = Field(
-        description="True if user agreed on actvity else False"
+        description="True if user agreed on activity else False"
     )
     didUserAgreeOnTime: bool = Field(
         description="True if user agreed on time else False"
