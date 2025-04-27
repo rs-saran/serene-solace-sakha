@@ -12,13 +12,14 @@ class MemoryManager:
             cls._instance = super(MemoryManager, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, db_path="/content", collection_name="sakha_activity_memories", embedding_size=384):
+    def __init__(self, db_path="data/qdrant", collection_name="sakha_activity_memories", embedding_size=384):
         if hasattr(self, "_initialized") and self._initialized:
             return  # Prevent reinitialization
 
         self.client = QdrantClient(path=db_path)
         self.collection_name = collection_name
         self.embedding_size = embedding_size
+        self.embedder = None
 
         if not self.client.collection_exists(self.collection_name):
             self.client.create_collection(
@@ -35,7 +36,7 @@ class MemoryManager:
 
     def embed_text(self, text):
         from fastembed import TextEmbedding
-        self.embedder = getattr(self, "embedder", TextEmbedding(model_name="BAAI/bge-small-en-v1.5"))
+        self.embedder = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
         return self.embedder.embed(text)
 
     def store_memory(self, user_id, thread_id, activity_id, user_situation,
@@ -106,9 +107,9 @@ class MemoryManager:
         query_embedding = list(self.embed_text(query_text))[0]
 
         raw_results = self.client.query_points(
-            collection_name=collection_name,
+            collection_name=self.collection_name,
             query=query_embedding,
-            limit=3,
+            limit=top_k,
             query_filter=Filter(
                 must=[
                     FieldCondition(key="user_id", match=MatchValue(value=user_id))
