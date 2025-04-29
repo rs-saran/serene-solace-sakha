@@ -1,10 +1,11 @@
-1. Train/finetune a small model and analyze user mood through out the chat sesssion how it started to how it ended after every few turns
-2. implement a summarizer for create summary after every k exchanges and update existing summary for every k exchanges
-3. Memories of user activities are not there for Sakha, implement RAG pipeline to retrieve activities user might have done in the past and if it helped them or not
-4. Eval framework for sakha evaluation for user testing
+major
+
+1. wip2. Train/finetune a small model and analyze user mood through out the chat sesssion how it started to how it ended after every few turns
+2. done. implement a summarizer for create summary after every k exchanges and update existing summary for every k exchanges
+3. wip1. Memories of user activities are not there for Sakha, implement RAG pipeline to retrieve activities user might have done in the past and if it helped them or not
+4. todo: Eval framework for sakha evaluation for user testing
 --------------
 Issues:
-1. Current reminder flow fails if user has asked to set multiple reminders for different activities doesn't work correctly. conversation state only stores the latest activity info
 -----------
 P1:
 1. Testing
@@ -13,3 +14,7 @@ P2:
 2. Checkpoint clean up.
 3. Add token tracker and move summarization based on tokens instead of exchanges
 -----------
+
+immediate todo:
+----------------
+test the chat flow split up for all cases, if everything works fine merge this branch
