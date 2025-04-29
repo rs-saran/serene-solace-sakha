@@ -16,13 +16,14 @@ class ChatEngine:
         self.latest_exchanges = []
         self.conversation_summary = None
         self.exchange = 0
-        self.flow = "activity_suggestion"
+        self.flow = None
         self.chat_flow_manager = ChatFlowManager(llm)
         self.response_manager = response_manager
         self.summarizer = ConversationSummarizer(llm)
         self.activity_details = None
         self.exc_window = 10  # for summarizer
         self.reset_exchange = 1
+
     def generate_response(self, user_input, user_id, thread_id, user_info):
         try:
             latest_exchanges_pretty = exchanges_pretty(self.latest_exchanges)
@@ -85,7 +86,7 @@ class ChatEngine:
                 "conversation_summary", ""
             )
             self.exchange = conversation_state.get("exchange", 0)
-            self.flow = conversation_state.get("flow", "activity_suggestion")
+            self.flow = conversation_state.get("flow", "normal_chat")
 
             if self.exchange > 0 and self.exchange % self.exc_window == 0:
                 self.reset_exchange = self.exc_window
