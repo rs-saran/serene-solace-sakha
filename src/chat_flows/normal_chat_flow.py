@@ -53,7 +53,6 @@ class NormalChatFlow(ChatFlow):
                 else:
                     chat_prompt_msgs = [
                         SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(get_activity_suggestion_prompt()),
                         SystemMessage(f"User Info: {user_info}"),
                         SystemMessage(f"Current time: {get_current_time_ist()}"),
                         SystemMessage(
