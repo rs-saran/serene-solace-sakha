@@ -35,7 +35,7 @@ class ActivitySuggestionFlow(ChatFlow):
                     SystemMessage(f"User Info: {user_info}"),
                     SystemMessage(f"Current time: {get_current_time_ist()}"),
                     SystemMessage(
-                        "Introduce yourself briefly and naturally and check how the user is doing."
+                        "Suggest some activity to the user"
                     ),
                     HumanMessage(user_input),
                 ]
