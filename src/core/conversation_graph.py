@@ -52,11 +52,13 @@ class ConversationGraph:
             logger.warning("Supervisor response missing. Defaulting to Sakha.")
             return "Sakha"
 
-        picked_route = supervisor_response.pickedRoute
-        logger.info(f"Supervisor picked route: {picked_route}")
+        picked_flow = supervisor_response.pickedFlow
+        logger.info(f"Supervisor picked route: {picked_flow}")
 
-        if picked_route == "crisis_helpline":
+        if picked_flow == "crisis_helpline":
             return "crisisHandler"
+        elif picked_flow in ['normal_chat', 'reminder', 'follow_up', 'activity_suggestion']:
+            conversation_state.update(flow=picked_flow)
         return "Sakha"
 
     def compile(self):
