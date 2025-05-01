@@ -13,6 +13,7 @@ class ReminderFlow(ChatFlow):
 
     def generate_response(
         self,
+        user_id, thread_id,
         exchange,
         user_input,
         latest_exchanges_pretty,

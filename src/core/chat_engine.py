@@ -35,6 +35,7 @@ class ChatEngine:
 
             chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
             raw_model_response = chat_flow.generate_response(
+                user_id, thread_id,
                 self.exchange,
                 user_input,
                 latest_exchanges_pretty,

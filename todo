@@ -3,7 +3,7 @@ major
 1. wip2. Train/finetune a small model and analyze user mood through out the chat sesssion how it started to how it ended after every few turns
 2. done. implement a summarizer for create summary after every k exchanges and update existing summary for every k exchanges
 3. wip1. Memories of user activities are not there for Sakha, implement RAG pipeline to retrieve activities user might have done in the past and if it helped them or not
-4. todo: Eval framework for sakha evaluation for user testing
+4.  Eval framework for sakha evaluation for user testing
 --------------
 Issues:
 -----------
@@ -14,4 +14,9 @@ P2:
 2. Checkpoint clean up.
 3. Add token tracker and move summarization based on tokens instead of exchanges
 -----------
+
+todo: Add flag to prevent early flow changes
+todo: Add tool messages for reminders and feedback collection
+todo: user situtaion gauager's user situation should be used to store activity in activity log
+todo: pass around conversation state object instead of its variables
 
