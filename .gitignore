@@ -6,3 +6,4 @@ venv
 dev_test.ipynb
 .idea
 .env
+data/qdrant/
