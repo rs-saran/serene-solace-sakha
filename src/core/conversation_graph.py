@@ -59,6 +59,7 @@ class ConversationGraph:
             return "crisisHandler"
         elif picked_flow in ['normal_chat', 'reminder', 'follow_up', 'activity_suggestion']:
             conversation_state.update(flow=picked_flow)
+            logger.info(f"Updated the flow in CS: {conversation_state.get('flow', 'error: not present')}")
         return "Sakha"
 
     def compile(self):

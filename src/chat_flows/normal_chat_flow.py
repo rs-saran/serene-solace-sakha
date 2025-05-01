@@ -3,11 +3,8 @@ from langchain_core.callbacks import UsageMetadataCallbackHandler
 
 from src.chat_flows.chat_flow import ChatFlow
 from src.logger import get_logger
-from src.managers.prompt_manager import (
-    get_activity_suggestion_prompt,
-    get_sakha_char_prompt,
-)
-from src.response_templates.sakha_template import SakhaResponseForASFlow
+from src.managers.prompt_manager import get_sakha_char_prompt
+from src.response_templates.sakha_template import SakhaResponseForNCFlow
 from src.utils import get_current_time_ist
 
 logger = get_logger(__name__)
@@ -62,7 +59,7 @@ class NormalChatFlow(ChatFlow):
                     ]
             callback = UsageMetadataCallbackHandler()
             model_response = self.llm.with_structured_output(
-                SakhaResponseForASFlow
+                SakhaResponseForNCFlow
             ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
             logger.info("Successfully generated response in NC Flow")
             print(callback.usage_metadata)

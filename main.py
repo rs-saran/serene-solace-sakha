@@ -134,7 +134,7 @@ def send_follow_up():
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "follow-up", "exchange": 0, "activity_details": activity_details},
+            values={"flow": "follow_up", "exchange": 0, "activity_details": activity_details},
         )
         response = processor.process_input(
             "Follow-up Triggered", thread_id=thread_id, user_id=user_id
@@ -200,7 +200,7 @@ def handle_message(data):
                 "thread_id": thread_id,
                 "user_id": user_id,
                 "user_info": user_manager.get_user_info(user_id),
-                "flow": "activity_suggestion",
+                "flow": "normal_chat",
             },
         )
         active_sessions[thread_id] = True

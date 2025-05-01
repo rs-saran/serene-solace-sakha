@@ -11,6 +11,7 @@ class ConversationState(TypedDict):
     user_id: str
     thread_id: str
     exchange: int
+    reset_exchange: int
     conversation_history: list[AnyMessage]
     preferred_activities: list[str]
     user_info: UserInfo
@@ -21,3 +22,4 @@ class ConversationState(TypedDict):
     to_user: str
     conversation_summary: str
     latest_exchanges: list[AnyMessage]
+    reset_exchange: int
