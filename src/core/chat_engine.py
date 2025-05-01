@@ -96,7 +96,7 @@ class ChatEngine:
 
             self.latest_exchanges = self.conversation_history[(2 * (self.reset_exchange - 1)):]
 
-            print(f"latest exchanges chat function: {self.latest_exchanges}")
+            # print(f"latest exchanges chat function: {self.latest_exchanges}")
 
             logger.info(
                 f"Starting conversation with User-{user_id} | Flow: {self.flow}"
