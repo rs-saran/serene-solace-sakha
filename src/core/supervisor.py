@@ -33,10 +33,13 @@ class Supervisor:
             if select_conv else "This is the beginning of the conversation"
         )
 
-        user_input_insert = (
-            f"human: {user_input}\n"
-            if user_input else ""
-        )
+        if user_input in ['Reminder Triggered']:
+            user_input_insert = f"System Message: Trigger the reminder flow now\n"
+        elif user_input in ['Follow-up Triggered']:
+            user_input_insert = f"System Message: Trigger the follow_up flow now\n"
+        else:
+            user_input_insert = f"human: {user_input}\n"
+
 
         purpose_insert = "Sakha's role is to act as friend who brightens the user's day by suggesting activities or If user the user only wants to talk then then just chat like a friend respecting user boundaries"
 
@@ -48,42 +51,47 @@ You must strictly follow the routing rules provided for the current flow.
 
         flow_rules_map = {
             "normal_chat": """
-        You are currently in the 'normal_chat' flow.
+You are currently in the 'normal_chat' flow. 
 
-        Note: be very proactive to move sakha into  activity_suggestion flow don't stay normal chat flow to wait or explicit signals for activity suggestion.
-        - If the users day is not bright enough Sakha should improve the their day by suggesting an activity → switch to activity_suggestion flow.
-        - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - Otherwise → stay in normal_chat flow.
+Use the following guidelines to determine whether to transition to another flow:
+
+- Be gently proactive early in the conversation—if the user's mood seems low or neutral → switch to 'activity_suggestion' flow.
+- If the user expresses sadness, boredom, or dissatisfaction with their day → suggest an uplifting activity would help them so → switch to 'activity_suggestion' flow.
+- If the user is engaging in conversation and seems content to chat → remain in 'normal_chat'.
+- If the user expresses suicidal thoughts or harmful behavior → immediately switch to 'crisis_helpline' flow.
+- If the user asks to set a 'reminder' or plan something → transition to 'activity_suggestion'.
+- If none of the above apply → remain in 'normal_chat'.
+- Note: you can only transition into ['normal_chat', 'activity_suggestion', 'crisis_helpline']
         """,
 
             "activity_suggestion": """
-        You are currently in the 'activity_suggestion' flow.
+        You are currently in the 'activity_suggestion' flow. Use the following logic to determine whether to stay in this flow or transition to another:
 
-        - If the user has agreed to do some activity may or may not be the one suggested by Sakha → stay in activity_suggestion flow.
-        - If the user wants to chat about something related to the activity → stay in activity_suggestion flow.
-        - If the user wants to talk instead of doing an activity → switch to normal_chat flow.
-        - If the user wants to chat about something else until the reminder is set → switch to normal_chat flow.
-        - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - Otherwise → stay in activity_suggestion flow.
+- If the user expresses suicidal thoughts or harmful behavior → immediately switch to 'crisis_helpline' flow.
+- If the user agrees to do an activity (regardless of whether it was your suggestion) → stay in 'activity_suggestion' flow.
+- If the user wants to talk about the activity (e.g., how it’s going, what they think of it, discussion on duration/time) → stay in 'activity_suggestion' flow.
+- If the user wants to chat about something unrelated or prefers to talk instead of doing an activity → switch to 'normal_chat' flow.
+- If the user wants to wait or chat about something else while a reminder is pending → switch to 'normal_chat' flow.
+- Otherwise → stay in 'activity_suggestion' flow.
+- Note: you can only transition into ['normal_chat', 'activity_suggestion', 'crisis_helpline']
         """,
 
             "reminder": """
-        You are currently in the 'reminder' flow.
+You are currently in the 'reminder' flow. Use the following logic to guide the conversation:
 
-        - If the user is demotivated and Sakha should motivate the user → stay in reminder flow.
-        - If the user wants to change or do a new activity → switch to activity_suggestion flow.
-        - If the user just wants someone to talk to and not do any activity → switch to normal_chat flow.
-        - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - Otherwise → stay in reminder flow.
+- If the user expresses suicidal thoughts or harmful behavior → immediately switch to 'crisis_helpline' flow.
+- If the user is feeling unmotivated and needs encouragement to follow through with the activity or reminder → stay in 'reminder' flow.
+- If the user wants to change the current activity or start a new one → switch to 'activity_suggestion' flow.
+- If the user is no longer interested in doing an activity → switch to 'normal_chat' flow.
+- Note: If none of the above apply → stay in 'reminder' flow.
         """,
 
             "follow_up": """
-        You are currently in the 'follow_up' flow.
+You are currently in the 'follow_up' flow. Use the following logic to determine the next step:
 
-        - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - If feedback (completion, enjoyment, or reason for skipping) is not yet collected → stay in follow_up flow.
-        - If the user wants to continue chatting after feedback is complete → switch to normal_chat flow 
-        - Otherwise → stay in follow_up flow.
+- If the user expresses suicidal thoughts or harmful behavior → immediately switch to 'crisis_helpline' flow.
+- If any of the required feedback (completion status, enjoyment level, and reason for skipping if the activity wasn’t done) has not yet been collected → stay in 'follow_up' flow.
+- If all required feedback has been collected and the user does not wish to chat further → stay in 'follow_up' flow.
         """,
 
             "crisis_helpline": """
@@ -131,9 +139,9 @@ You must strictly follow the routing rules provided for the current flow.
             logger.info(f"Generating supervisor decision for input: {user_input}")
             prompt = self.get_supervisor_prompt(user_input, latest_exchanges_pretty, conversation_summary, flow)
 
-            logger.info(
-                f"=================\nPrompt used for supervisor : {prompt}\n=================="
-            )
+            # logger.info(
+            #     f"=================\nPrompt used for supervisor : {prompt}\n=================="
+            # )
 
             supervisor_response = self.llm.invoke(prompt)
             logger.info(f"Supervisor Decision: {supervisor_response}")
