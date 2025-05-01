@@ -22,4 +22,3 @@ class ConversationState(TypedDict):
     to_user: str
     conversation_summary: str
     latest_exchanges: list[AnyMessage]
-    reset_exchange: int
