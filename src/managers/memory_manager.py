@@ -40,7 +40,7 @@ class MemoryManager:
         return self.embedder.embed(text)
 
     def store_memory(self, user_id, thread_id, activity_id, user_situation,
-                     activity_name, duration, is_completed, enjoyment_score, reason_for_skipping):
+                     activity_name, duration, is_completed, enjoyment_score, reason_for_skipping, feedback_updated_at):
 
         text_to_embed = f"User situation: {user_situation}"
         embedding = list(self.embed_text(text_to_embed))[0]
@@ -58,7 +58,7 @@ class MemoryManager:
                 "is_completed": is_completed,
                 "enjoyment_score": enjoyment_score,
                 "reason_for_skipping": reason_for_skipping,
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                "timestamp": feedback_updated_at
             },
             vector=embedding
         )
@@ -70,7 +70,8 @@ class MemoryManager:
 
     def summarize_memory_payload_to_points(self, payload: dict) -> str:
         if payload is None:
-            return "No memory payload provided."
+            print("No memory payload provided.")
+            return None
 
         user_situation = payload.get("user_situation", "an unspecified situation")
         activity_name = payload.get("activity_name", "an activity")
@@ -95,14 +96,16 @@ class MemoryManager:
     def process_results(self, raw_results):
         fetched_points = raw_results.model_dump()['points']
         print(fetched_points)
+        results = None
         if len(fetched_points) > 0:
             results = [self.summarize_memory_payload_to_points(point.get("payload", None)) for point in fetched_points]
-        else:
-            results = []
+        if results is None:
+            print("no memory points fetched")
+            return None
 
         return "-----\n".join(results)
 
-    def retrieve_memories(self, query_user_situation, user_id, top_k=3):
+    def retrieve_activity_memories(self, query_user_situation, user_id, top_k=3):
         query_text = f"User situation: {query_user_situation}"
         query_embedding = list(self.embed_text(query_text))[0]
 

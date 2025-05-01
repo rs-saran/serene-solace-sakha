@@ -8,6 +8,7 @@ from src.response_templates.sakha_template import (
     SakhaResponseForFUFlow,
     SakhaResponseForRemFlow,
 )
+from src.managers.memory_manager import MemoryManager
 
 logger = get_logger(__name__)
 
@@ -109,19 +110,20 @@ class ResponseManager:
         Stores feedback when feedback collection is complete.
         """
         if response.isFeedbackCollectionComplete and response.activityFeedback:
-            query = """
-                UPDATE activity_log
-                SET 
-                    is_completed = %s,
-                    enjoyment_score = %s,
-                    reason_skipped = %s,
-                    feedback_updated_at = CURRENT_TIMESTAMP
-                WHERE 
-                    id = %s AND
-                    user_id = %s AND
-                    thread_id = %s
-            """
+            # Storing feedback in postgres
             try:
+                query = """
+                        UPDATE activity_log
+                        SET 
+                            is_completed = %s,
+                            enjoyment_score = %s,
+                            reason_skipped = %s,
+                            feedback_updated_at = CURRENT_TIMESTAMP
+                        WHERE 
+                            id = %s AND
+                            user_id = %s AND
+                            thread_id = %s
+                        """
                 self.db_manager.execute(
                     query,
                     (
@@ -140,6 +142,47 @@ class ResponseManager:
                 logger.error(
                     f"Error storing feedback for user {user_id}: {e}", exc_info=True
                 )
+
+            # Storing activity memory in qdrant
+            try:
+                query = """
+                        SELECT  user_id, thread_id, id, user_situation, activity, duration, is_completed, enjoyment_score, reason_skipped, feedback_updated_at
+                        FROM activity_log
+                        WHERE id = %s AND
+                            user_id = %s AND
+                            thread_id = %s
+                        """
+                rows = self.db_manager.execute(
+                    query,
+                    (
+                        response.activityFeedback.activity_id,
+                        user_id,
+                        thread_id,
+                    ),
+                    fetch=True
+                )
+
+                mem_manager = MemoryManager()
+
+                if rows:
+                    logger.info(
+                        f"Found {len(rows)} activity memories. storing them now..."
+                    )
+                    for row in rows:
+                        mem_manager.store_memory(*row)
+
+                else:
+                    logger.info("No activity memories. found.")
+
+                logger.info(
+                    f"Activity memories stored for user {user_id} on activity {response.activityFeedback.activity_id}."
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error storing activity memories for user {user_id}: {e}", exc_info=True
+                )
+
+
 
     def _handle_rem_flow(self, user_id, thread_id, response: SakhaResponseForRemFlow):
         """
