@@ -15,6 +15,3 @@ P2:
 3. Add token tracker and move summarization based on tokens instead of exchanges
 -----------
 
-immediate todo:
-----------------
-test the chat flow split up for all cases, if everything works fine merge this branch
