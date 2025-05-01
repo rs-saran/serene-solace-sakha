@@ -17,7 +17,7 @@ class Supervisor:
     def get_supervisor_prompt(
             self,
             user_input: str,
-            select_conv: str = "This is the beginning of the conversation",
+            select_conv: str = "",
             conversation_summary: str = "",
             flow: str = "normal_chat"
     ) -> str:
@@ -28,11 +28,21 @@ class Supervisor:
             if conversation_summary else ""
         )
 
+        select_conv_insert = (
+            f"{select_conv}"
+            if select_conv else "This is the beginning of the conversation"
+        )
+
+        user_input_insert = (
+            f"human: {user_input}\n"
+            if user_input else ""
+        )
+
+        purpose_insert = "Sakha's role is to act as friend who brightens the user's day by suggesting activities or If user the user only wants to talk then then just chat like a friend respecting user boundaries"
+
         common_prompt_header = """
-You are an autonomous agent in a mood improvement chat system.
-
-Your task is to decide the most appropriate flow for the conversation based on the current user message and prior context.
-
+You are an autonomous agent in a mood improvement chat system supervising Sakha.
+Your task is to decide the most appropriate flow for the conversation based on Sakha's role and prior context 
 You must strictly follow the routing rules provided for the current flow.
         """
 
@@ -40,16 +50,20 @@ You must strictly follow the routing rules provided for the current flow.
             "normal_chat": """
         You are currently in the 'normal_chat' flow.
 
+        Note: be very proactive to move sakha into  activity_suggestion flow don't stay normal chat flow to wait or explicit signals for activity suggestion.
+        - If the users day is not bright enough Sakha should improve the their day by suggesting an activity → switch to activity_suggestion flow.
         - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - If it's the right time to suggest a mood-improving activity → switch to activity_suggestion flow.
         - Otherwise → stay in normal_chat flow.
         """,
 
             "activity_suggestion": """
         You are currently in the 'activity_suggestion' flow.
 
+        - If the user has agreed to do some activity may or may not be the one suggested by Sakha → stay in activity_suggestion flow.
+        - If the user wants to chat about something related to the activity → stay in activity_suggestion flow.
+        - If the user wants to talk instead of doing an activity → switch to normal_chat flow.
+        - If the user wants to chat about something else until the reminder is set → switch to normal_chat flow.
         - If the user expresses suicidal or harmful behavior → switch to crisis_helpline flow.
-        - If the user prefers to talk instead of doing an activity → switch to normal_chat flow.
         - Otherwise → stay in activity_suggestion flow.
         """,
 
@@ -80,23 +94,16 @@ You must strictly follow the routing rules provided for the current flow.
         """
         }
 
-
         base_char_prompt = f"""
-        {common_prompt_header}
-        
-        {conversation_summary_insert}
-    
-        Recent Exchanges:
-        <recent_exchanges>
-        {select_conv}
-        </recent_exchanges>
-    
-        Current Human Input:
-        <current_human_input>
-        {user_input}
-        </current_human_input>
-        
-        Routing rules:
+        {common_prompt_header}\n
+        {purpose_insert}\n
+        <prior_context>
+        {conversation_summary_insert}\n
+        <recent_exchanges>\n
+        {select_conv_insert}\n
+        {user_input_insert}\n
+        </recent_exchanges>\n
+        <prior_context>
         <routing_rules>
         {flow_rules_map.get(flow, "")}
         </routing_rules>
@@ -107,20 +114,26 @@ You must strictly follow the routing rules provided for the current flow.
     def get_supervisor_decision(self, conversation_state: ConversationState) -> Dict:
         """Process the conversation history and current user input to get a supervisor's decision."""
         try:
-            # conversation_history = conversation_state.get("conversation_history", [])
+            conversation_history = conversation_state.get("conversation_history", [])
             user_input = conversation_state.get("user_input", "")
-            latest_exchanges = conversation_state.get("latest_exchanges", None)
+            reset_exchange = conversation_state.get("reset_exchange", 1)
+            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)):]
             conversation_summary = conversation_state.get("conversation_summary", None)
             flow = conversation_state.get("flow", "normal_chat")
 
-            if not user_input:
+            if not user_input and flow not in ['reminder', 'follow_up']:
                 logger.warning("User input is missing in conversation_state.")
-                return {"supervisor_response": "normal_chat"}  # Default action
+                return {"supervisor_response": SupervisorResponse(pickedFlow="normal_chat",
+                                                                  reason="user input is missing defaulting to normal_chat flow")}  # Default action
 
             latest_exchanges_pretty = exchanges_pretty(latest_exchanges)
 
             logger.info(f"Generating supervisor decision for input: {user_input}")
             prompt = self.get_supervisor_prompt(user_input, latest_exchanges_pretty, conversation_summary, flow)
+
+            logger.info(
+                f"=================\nPrompt used for supervisor : {prompt}\n=================="
+            )
 
             supervisor_response = self.llm.invoke(prompt)
             logger.info(f"Supervisor Decision: {supervisor_response}")

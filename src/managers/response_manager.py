@@ -2,6 +2,7 @@ from src.logger import get_logger
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
 from src.response_templates.sakha_template import (
+    SakhaResponseForNCFlow,
     SakhaResponseForASFlow,
     SakhaResponseForError,
     SakhaResponseForFUFlow,
@@ -31,7 +32,9 @@ class ResponseManager:
         activity_details = None
 
         try:
-            if isinstance(response, SakhaResponseForASFlow):
+            if isinstance(response, SakhaResponseForNCFlow):
+                self._handle_nc_flow(user_id, thread_id, response)
+            elif isinstance(response, SakhaResponseForASFlow):
                 activity_details = self._handle_as_flow(user_id, thread_id, response)
             elif isinstance(response, SakhaResponseForRemFlow):
                 self._handle_rem_flow(user_id, thread_id, response)
@@ -49,6 +52,13 @@ class ResponseManager:
             )
 
         return self._format_response(response.replyToUser, activity_details)
+
+    def _handle_nc_flow(self, user_id, thread_id, response: SakhaResponseForASFlow):
+        """
+        Handles the response for Normal Chat Flow.
+        """
+        logger.info(f"Processing nc flow for user {user_id}, thread {thread_id}.")
+
 
     def _handle_as_flow(self, user_id, thread_id, response: SakhaResponseForASFlow):
         """

@@ -7,4 +7,4 @@ class SupervisorResponse(BaseModel):
     pickedFlow: str = Field(
         description="The flow to proceed in, ENUM: 'normal_chat', 'crisis_helpline', 'reminder', 'follow_up', 'activity_suggestion'"
     )
-    reason: str = Field(description="very short reason for picking the flow")
+    reason: str = Field(description="very shortly indicate the rule you followed for picking the flow")

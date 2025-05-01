@@ -6,6 +6,13 @@ from src.response_templates.activity_feedback import ActivityFeedback
 from src.response_templates.activity_reminder_config import ActivityReminderConfig
 
 
+class SakhaResponseForNCFlow(BaseModel):
+    """Response template to follow"""
+
+    replyToUser: str = Field(description="Reply to be shown to user")
+    # userSituation: Optional[str] = Field(None, description="A brief but specific description of the user's emotional or situational context when the activity is suggested (e.g., 'feeling anxious before a meeting', 'low energy in the afternoon', or 'excitied about a new project')")
+
+
 class SakhaResponseForASFlow(BaseModel):
     """Response template to follow"""
 

@@ -60,7 +60,7 @@ class ChatEngine:
             return "I'm sorry, I ran into an issue. Could you try again?"
 
     def update_conversation_history(self, user_input, response):
-        if self.exchange == 0 and self.flow in ("reminder", "follow-up"):
+        if self.exchange == 0 and self.flow in ("reminder", "follow_up"):
             self.conversation_history.append(AIMessage(content=response))
         else:
             self.conversation_history.extend(
@@ -86,8 +86,9 @@ class ChatEngine:
                 "conversation_summary", ""
             )
             self.exchange = conversation_state.get("exchange", 0)
-            self.flow = conversation_state.get("flow", "normal_chat")
-
+            self.flow = conversation_state.get("supervisor_response").pickedFlow
+            # print(f"flow in chat engine: {self.flow}")
+            # print(f"flow in chat engine from supervisor response: {}")
             if self.exchange > 0 and self.exchange % self.exc_window == 0:
                 self.reset_exchange = self.exc_window
                 # logger.info(f"latest exchanges passed from chat function: {self.latest_exchanges}")
@@ -95,7 +96,7 @@ class ChatEngine:
 
             self.latest_exchanges = self.conversation_history[(2 * (self.reset_exchange - 1)):]
 
-            # logger.info(f"latest exchanges chat function: {self.latest_exchanges}")
+            print(f"latest exchanges chat function: {self.latest_exchanges}")
 
             logger.info(
                 f"Starting conversation with User-{user_id} | Flow: {self.flow}"
@@ -115,7 +116,8 @@ class ChatEngine:
                 "activity_details": self.activity_details,
                 "to_user": model_response,
                 "latest_exchanges": self.latest_exchanges,
-                "conversation_summary": self.conversation_summary
+                "conversation_summary": self.conversation_summary,
+                "reset_exchange": self.reset_exchange
             }
 
         except Exception as e:
