@@ -15,6 +15,10 @@ class ConversationState(TypedDict):
     thread_id: str
     exchange: int
     reset_exchange: int
+
+    reminder_start: bool
+    followup_start: bool
+
     conversation_history: List[AnyMessage]
     preferred_activities: List[str]
     user_info: UserInfo
