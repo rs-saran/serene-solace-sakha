@@ -69,12 +69,12 @@ class ActivitySuggestionFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForASFlow
             ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
-            conversation_state.update(latest_sakha_response=model_response, latest_as_flow_response=model_response, latest_user_situation_gauger_response=user_situation_gauger_response)
+            conversation_state.update(latest_sakha_response=model_response, latest_as_flow_response=model_response, latest_user_situation_gauger_response=user_situation_gauger_response, flow="activity_suggestion")
             logger.info("Successfully generated response in AS Flow")
             print(callback.usage_metadata)
             return conversation_state
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
-            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in ASFlow {str(e)}"))
+            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in ASFlow {str(e)}"), flow="activity_suggestion")
             return conversation_state
