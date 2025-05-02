@@ -27,13 +27,15 @@ class ChatFlowManager:
 
     def get_chat_flow(self, conversation_state):
 
-        if not self.is_flow_change_valid(conversation_state):
-            return conversation_state.get("flow", "normal_chat")
+        if self.is_flow_change_valid(conversation_state):
+            latest_supervisor_response = conversation_state.get("latest_supervisor_response",
+                                                                SupervisorResponse(pickedFlow="normal_chat",
+                                                                                   reason="faced an error defaulting to normal chat"))
+            flow_name = getattr(latest_supervisor_response, "pickedFlow", "normal_chat")
 
-        latest_supervisor_response = conversation_state.get("latest_supervisor_response",
-                                                            SupervisorResponse(pickedFlow="normal_chat",
-                                                                               reason="faced an error defaulting to normal chat"))
-        flow_name = getattr(latest_supervisor_response, "pickedFlow", "normal_chat")
+        else:
+            flow_name = conversation_state.get("flow", "normal_chat")
+            print(f"not a valid change staying in the same flow {flow_name}")
 
         if flow_name in self.flows:
             logger.info(f"Retrieving chat flow: {flow_name}")
@@ -45,18 +47,23 @@ class ChatFlowManager:
             return self.flows['normal_chat']
 
     def is_flow_change_valid(self, conversation_state):
+        print(conversation_state)
         current_flow = conversation_state.get("flow", "normal_chat")
+        print("\n\ncurrent_flow: ",current_flow)
 
         latest_supervisor_response = conversation_state.get("latest_supervisor_response", SupervisorResponse(pickedFlow="normal_chat", reason="faced an error defaulting to normal chat"))
         new_flow = getattr(latest_supervisor_response, "pickedFlow", "normal_chat")
+        print("\n\nnew_flow: ", new_flow)
 
         if new_flow == 'crisis_helpline':
             return True
 
         if current_flow == "follow_up":
             latest_fu_flow_response = conversation_state.get("latest_fu_flow_response", SakhaResponseForFUFlow(replyToUser='Facing an error, please try again later', isFeedbackCollectionComplete=False, activityFeedback=None))
+            print(latest_fu_flow_response)
             feedback_collection_complete = getattr(latest_fu_flow_response, "isFeedbackCollectionComplete", False)
             if feedback_collection_complete:
+                print("is feedback_collection_complete = true")
                 return True
             else:
                 return False

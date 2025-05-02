@@ -40,12 +40,14 @@ class ChatEngine:
             return "Sorry, I ran into an issue. Can you try again?"
 
     def update_conversation_history(self, response, conversation_state):
-        exchange = conversation_state.get("exchange", 0)
+        reminder_start = conversation_state.get("reminder_start", False)
+        followup_start = conversation_state.get("followup_start", False)
         flow = conversation_state.get("flow", "normal_chat")
         conversation_history = conversation_state.get("conversation_history", [])
         user_input = conversation_state.get("user_input")
 
-        if exchange == 0 and flow in ("reminder", "follow_up"):
+        #todo: fix this logic, it will never reach true as these too start props are set to false before conv hist is updated
+        if (followup_start or reminder_start) and flow in ("reminder", "follow_up"):
             conversation_history.append(AIMessage(content=response))
         else:
             conversation_history.extend(
