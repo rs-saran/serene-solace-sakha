@@ -22,37 +22,38 @@ class ResponseManager:
         self.reminder_manager = reminder_manager
         self.db_manager = db_manager
 
-    def _format_response(self, reply, activity_details=None):
-        """Creates a standardized response format."""
-        return {"reply": reply, "activity_details": activity_details}
-
-    def handle_response(self, user_id, thread_id, response):
+    def handle_response(self, conversation_state):
         """
         Handles different response flows based on the response type.
         """
-        activity_details = None
+
+        user_id = conversation_state.get("user_id", "dummy_user_id")
+        thread_id = conversation_state.get("thread_id", "dummy_user_id")
+        raw_response = conversation_state.get("latest_sakha_response", "dummy_user_id")
 
         try:
-            if isinstance(response, SakhaResponseForNCFlow):
-                self._handle_nc_flow(user_id, thread_id, response)
-            elif isinstance(response, SakhaResponseForASFlow):
-                activity_details = self._handle_as_flow(user_id, thread_id, response)
-            elif isinstance(response, SakhaResponseForRemFlow):
-                self._handle_rem_flow(user_id, thread_id, response)
-            elif isinstance(response, SakhaResponseForFUFlow):
-                self._handle_fu_flow(user_id, thread_id, response)
-            elif isinstance(response, SakhaResponseForError):
-                self._handle_error_flow(user_id, thread_id, response)
+
+            if isinstance(raw_response, SakhaResponseForNCFlow):
+                self._handle_nc_flow(user_id, thread_id, raw_response)
+            elif isinstance(raw_response, SakhaResponseForASFlow):
+                gauged_user_situation = getattr(conversation_state.get("latest_user_situation_gauger_response", None),"userSituation", None)
+                self._handle_as_flow(user_id, thread_id, raw_response, gauged_user_situation)
+            elif isinstance(raw_response, SakhaResponseForRemFlow):
+                self._handle_rem_flow(user_id, thread_id, raw_response)
+            elif isinstance(raw_response, SakhaResponseForFUFlow):
+                self._handle_fu_flow(user_id, thread_id, raw_response)
+            elif isinstance(raw_response, SakhaResponseForError):
+                self._handle_error_flow(user_id, thread_id, raw_response)
 
             logger.info(
-                f"Handled response type: {type(response).__name__} for user {user_id}."
+                f"Handled response type: {type(raw_response).__name__} for user {user_id}."
             )
         except Exception as e:
             logger.error(
                 f"Error handling response for user {user_id}: {e}", exc_info=True
             )
 
-        return self._format_response(response.replyToUser, activity_details)
+        return raw_response.replyToUser
 
     def _handle_nc_flow(self, user_id, thread_id, response: SakhaResponseForASFlow):
         """
@@ -60,8 +61,7 @@ class ResponseManager:
         """
         logger.info(f"Processing nc flow for user {user_id}, thread {thread_id}.")
 
-
-    def _handle_as_flow(self, user_id, thread_id, response: SakhaResponseForASFlow):
+    def _handle_as_flow(self, user_id, thread_id, response: SakhaResponseForASFlow, gauged_user_situation):
         """
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
@@ -76,7 +76,7 @@ class ResponseManager:
                     self.reminder_manager.add_reminder(
                         user_id,
                         thread_id,
-                        response.reminder.user_situation,
+                        gauged_user_situation if gauged_user_situation is not None else response.reminder.user_situation,
                         response.reminder.activity,
                         response.reminder.hour,
                         response.reminder.minute,
