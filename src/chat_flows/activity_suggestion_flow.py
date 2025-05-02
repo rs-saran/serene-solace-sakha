@@ -9,7 +9,7 @@ from src.managers.prompt_manager import (
 )
 from src.response_templates.sakha_template import SakhaResponseForASFlow
 from src.response_templates.user_situation_gauger import SituationGaugerResponse
-from src.utils import get_current_time_ist
+from src.utils import get_current_time_ist, exchanges_pretty
 from src.managers.memory_manager import MemoryManager
 
 logger = get_logger(__name__)
@@ -29,27 +29,25 @@ class ActivitySuggestionFlow(ChatFlow):
         activity_memories = mem_manager.retrieve_activity_memories(user_situation, user_id)
         # mem_manager.close()
 
-        return activity_memories
-
-
+        return model_response, activity_memories
 
     def generate_response(
-        self,
-        user_id, thread_id,
-        exchange,
-        user_input,
-        latest_exchanges_pretty,
-        user_info,
-        conversation_summary="",
-        activity_details=None,
+        self, conversation_state
     ):
+        user_id = conversation_state.get("user_id", "dummy_user_id")
+        user_input = conversation_state.get("user_input")
+        user_info = conversation_state.get("user_info", "no user_info")
+
+        latest_exchanges = conversation_state.get("latest_exchanges", [])
+        latest_exchanges_pretty = exchanges_pretty(latest_exchanges)
+        conversation_summary = conversation_state.get("conversation_summary", "")
+
         try:
             logger.info(
                 f"Generating response for user_input in Activity suggestion flow : {user_input}"
             )
-            activity_memories = self.activity_memory_retriever(latest_exchanges_pretty,conversation_summary,user_id)
+            user_situation_gauger_response, activity_memories = self.activity_memory_retriever(latest_exchanges_pretty, conversation_summary, user_id)
             if activity_memories:
-
                 if conversation_summary == "":
                     chat_prompt_msgs = [
                         SystemMessage(get_sakha_char_prompt()),
@@ -103,13 +101,11 @@ class ActivitySuggestionFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForASFlow
             ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
+            conversation_state.update(latest_sakha_response=model_response, latest_as_flow_response=model_response, latest_user_situation_gauger_response=user_situation_gauger_response)
             logger.info("Successfully generated response in AS Flow")
             print(callback.usage_metadata)
-            return model_response
+            return conversation_state
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
-            return {
-                "replyToUser": "Sorry, I ran into an issue. Can you try again?",
-                "error": f"Error generating response in ASFlow",
-            }
+            return conversation_state
