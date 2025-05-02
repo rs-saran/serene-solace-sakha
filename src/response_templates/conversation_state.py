@@ -1,8 +1,11 @@
-from typing import TypedDict
+from typing import TypedDict, List, Union
 
 from langchain_core.messages import AnyMessage
 
 from src.response_templates.supervisor_response import SupervisorResponse
+from src.response_templates.user_situation_gauger import SituationGaugerResponse
+from src.response_templates.sakha_template import SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow
+
 from src.response_templates.user_info import UserInfo
 
 
@@ -12,13 +15,23 @@ class ConversationState(TypedDict):
     thread_id: str
     exchange: int
     reset_exchange: int
-    conversation_history: list[AnyMessage]
-    preferred_activities: list[str]
+    conversation_history: List[AnyMessage]
+    preferred_activities: List[str]
     user_info: UserInfo
     user_input: str
-    supervisor_response: SupervisorResponse
+
     flow: str
     activity_details: dict
     to_user: str
     conversation_summary: str
-    latest_exchanges: list[AnyMessage]
+    latest_exchanges: List[AnyMessage]
+
+    latest_supervisor_response: SupervisorResponse
+    latest_user_situation_gauger_response: SituationGaugerResponse
+
+    latest_sakha_response: Union[SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow]
+    latest_nc_flow_response: SakhaResponseForNCFlow
+    latest_as_flow_response: SakhaResponseForASFlow
+    latest_rem_flow_response: SakhaResponseForRemFlow
+    latest_fu_flow_response: SakhaResponseForFUFlow
+
