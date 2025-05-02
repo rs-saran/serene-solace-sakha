@@ -105,7 +105,7 @@ def send_reminder():
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "reminder", "exchange": 0, "activity_details": activity_details},
+            values={"flow": "reminder", "reminder_start": False, "activity_details": activity_details},
         )
         response = processor.process_input(
             "Reminder Triggered", thread_id=thread_id, user_id=user_id
@@ -134,7 +134,7 @@ def send_follow_up():
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "follow_up", "exchange": 0, "activity_details": activity_details},
+            values={"flow": "follow_up", "followup_start": True, "activity_details": activity_details},
         )
         response = processor.process_input(
             "Follow-up Triggered", thread_id=thread_id, user_id=user_id
