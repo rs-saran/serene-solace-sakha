@@ -47,55 +47,23 @@ class ActivitySuggestionFlow(ChatFlow):
                 f"Generating response for user_input in Activity suggestion flow : {user_input}"
             )
             user_situation_gauger_response, activity_memories = self.activity_memory_retriever(latest_exchanges_pretty, conversation_summary, user_id)
-            if activity_memories:
-                if conversation_summary == "":
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(get_activity_suggestion_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage("Memories:\n " + activity_memories),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history>{latest_exchanges_pretty}</conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
-                else:
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(get_activity_suggestion_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
 
+            if conversation_summary == "":
+                chat_context = f"Conversation History:\n{latest_exchanges_pretty}"
             else:
+                chat_context = f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
 
-                if conversation_summary == "":
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(get_activity_suggestion_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history>{latest_exchanges_pretty}</conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
-                else:
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(get_activity_suggestion_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
+            chat_prompt_msgs = [
+                SystemMessage(get_sakha_char_prompt()),
+                SystemMessage(get_activity_suggestion_prompt()),
+                SystemMessage(f"User Info: {user_info}"),
+                SystemMessage(f"Current time: {get_current_time_ist()}"),
+                SystemMessage(chat_context),
+                HumanMessage(user_input),
+            ]
+
+            if activity_memories:
+                chat_prompt_msgs.insert(3, SystemMessage("Memories:\n " + activity_memories))
 
             callback = UsageMetadataCallbackHandler()
             model_response = self.llm.with_structured_output(
