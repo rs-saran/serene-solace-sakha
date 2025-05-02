@@ -5,7 +5,7 @@ from src.chat_flows.chat_flow import ChatFlow
 from src.logger import get_logger
 from src.managers.prompt_manager import get_sakha_char_prompt
 from src.response_templates.sakha_template import SakhaResponseForNCFlow
-from src.utils import get_current_time_ist
+from src.utils import get_current_time_ist, exchanges_pretty
 
 logger = get_logger(__name__)
 
@@ -13,15 +13,16 @@ logger = get_logger(__name__)
 class NormalChatFlow(ChatFlow):
 
     def generate_response(
-        self,
-        user_id, thread_id,
-        exchange,
-        user_input,
-        latest_exchanges_pretty,
-        user_info,
-        conversation_summary="",
-        activity_details=None,
+        self, conversation_state
     ):
+        user_input = conversation_state.get("user_input")
+        user_info  = conversation_state.get("user_info", "no user_info")
+        exchange   = conversation_state.get("exchange", 0)
+
+        latest_exchanges = conversation_state.get("latest_exchanges", [])
+        latest_exchanges_pretty = exchanges_pretty(latest_exchanges)
+        conversation_summary = conversation_state.get("conversation_summary", "")
+
         try:
             logger.info(
                 f"Generating response for user_input in Normal Chat flow : {user_input}"
@@ -62,13 +63,11 @@ class NormalChatFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForNCFlow
             ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
+            conversation_state.update(latest_sakha_response=model_response, latest_nc_flow_response=model_response)
             logger.info("Successfully generated response in NC Flow")
             print(callback.usage_metadata)
-            return model_response
+            return conversation_state
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
-            return {
-                "replyToUser": "Sorry, I ran into an issue. Can you try again?",
-                "error": f"Error generating response in NCFlow",
-            }
+            return conversation_state
