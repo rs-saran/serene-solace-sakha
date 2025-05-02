@@ -200,7 +200,7 @@ def handle_message(data):
                 "thread_id": thread_id,
                 "user_id": user_id,
                 "user_info": user_manager.get_user_info(user_id),
-                "flow": "normal_chat",
+                # "flow": "normal_chat",
             },
         )
         active_sessions[thread_id] = True
