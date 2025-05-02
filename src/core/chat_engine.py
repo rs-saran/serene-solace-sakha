@@ -80,11 +80,12 @@ class ChatEngine:
             conversation_state.update(latest_exchanges=latest_exchanges)
 
             reply_to_user = self.generate_response(conversation_state)
+            conversation_state.update(to_user = reply_to_user)
 
             if reply_to_user != "Sorry, I ran into an issue. Can you try again?":
                 updated_conversation_history = self.update_conversation_history(str(reply_to_user), conversation_state)
                 exchange += 1
-                conversation_state.update(conversation_history=updated_conversation_history,exchange=exchange)
+                conversation_state.update(conversation_history=updated_conversation_history, exchange=exchange)
 
             return conversation_state
 
