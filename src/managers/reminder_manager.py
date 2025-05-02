@@ -79,7 +79,7 @@ class ReminderManager:
 
         logger.info(f"Scheduling Reminder: IST={start_time_ist}, UTC={start_time_utc}")
 
-        activity_details = f"<activity_details>{{'activity_id': {activity_id}, 'user_situation': '{user_situation}', 'activity': '{activity}'}}</activity_details>"
+        activity_details = f"<activity_details>{{'activity_id': {activity_id}, 'user_situation': '{user_situation}', 'activity': '{activity}', 'duration': '{duration} mins' }}</activity_details>"
         if send_reminder and start_time_ist > now_ist:
             self.scheduler.add_job(
                 self._execute_reminder,

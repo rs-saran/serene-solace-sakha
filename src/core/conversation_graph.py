@@ -46,7 +46,7 @@ class ConversationGraph:
         self, conversation_state: ConversationState
     ) -> Literal["Sakha", "crisisHandler"]:
         """Determine the next route based on the supervisor response."""
-        supervisor_response = conversation_state.get("supervisor_response")
+        supervisor_response = conversation_state.get("latest_supervisor_response")
 
         if not supervisor_response:
             logger.warning("Supervisor response missing. Defaulting to Sakha.")
@@ -57,9 +57,9 @@ class ConversationGraph:
 
         if picked_flow == "crisis_helpline":
             return "crisisHandler"
-        elif picked_flow in ['normal_chat', 'reminder', 'follow_up', 'activity_suggestion']:
-            conversation_state.update(flow=picked_flow)
-            logger.info(f"Updated the flow in CS: {conversation_state.get('flow', 'error: not present')}")
+        # elif picked_flow in ['normal_chat', 'reminder', 'follow_up', 'activity_suggestion']:
+            # conversation_state.update(flow=picked_flow)
+            # logger.info(f"Updated the flow in CS: {conversation_state.get('flow', 'error: not present')}")
         return "Sakha"
 
     def compile(self):

@@ -16,6 +16,7 @@ class ConversationProcessor:
         config = {"configurable": {"thread_id": thread_id, "user_id": user_id}}
 
         try:
+            # cs = self.conversation_graph.get_state(config=config)
             # Process input and get the latest conversation state
             self.conversation_graph.invoke({"user_input": user_input}, config)
 
