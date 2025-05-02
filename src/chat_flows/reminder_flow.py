@@ -49,7 +49,7 @@ class ReminderFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForRemFlow
             ).invoke(chat_prompt_msgs)
-            conversation_state.update(latest_sakha_response=model_response, latest_rem_flow_response=model_response, reminder_start=False)
+            conversation_state.update(latest_sakha_response=model_response, latest_rem_flow_response=model_response, reminder_start=False, flow="reminder")
 
             logger.info("Successfully generated reminder response.")
 
@@ -57,5 +57,5 @@ class ReminderFlow(ChatFlow):
 
         except Exception as e:
             logger.error(f"Error generating reminder response: {str(e)}", exc_info=True)
-            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in RemFlow {str(e)}"))
+            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in RemFlow {str(e)}"), flow="reminder")
             return conversation_state
