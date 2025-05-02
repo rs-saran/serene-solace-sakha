@@ -4,7 +4,8 @@ from langchain_core.messages import AnyMessage
 
 from src.response_templates.supervisor_response import SupervisorResponse
 from src.response_templates.user_situation_gauger import SituationGaugerResponse
-from src.response_templates.sakha_template import SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow
+from src.response_templates.sakha_template import SakhaResponseForNCFlow, SakhaResponseForASFlow, \
+    SakhaResponseForRemFlow, SakhaResponseForFUFlow, SakhaResponseForError
 
 from src.response_templates.user_info import UserInfo
 
@@ -33,7 +34,7 @@ class ConversationState(TypedDict):
     latest_supervisor_response: SupervisorResponse
     latest_user_situation_gauger_response: SituationGaugerResponse
 
-    latest_sakha_response: Union[SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow]
+    latest_sakha_response: Union[SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow, SakhaResponseForError]
     latest_nc_flow_response: SakhaResponseForNCFlow
     latest_as_flow_response: SakhaResponseForASFlow
     latest_rem_flow_response: SakhaResponseForRemFlow
