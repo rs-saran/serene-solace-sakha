@@ -10,13 +10,7 @@ Issues:
 P1:
 1. Testing
 P2:
-1. Implement cross thread semantic memory.
 2. Checkpoint clean up.
 3. Add token tracker and move summarization based on tokens instead of exchanges
 -----------
-
-todo: Add flag to prevent early flow changes
-todo: Add tool messages for reminders and feedback collection
-todo: user situtaion gauager's user situation should be used to store activity in activity log
-todo: pass around conversation state object instead of its variables
 
