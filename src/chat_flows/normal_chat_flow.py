@@ -40,25 +40,18 @@ class NormalChatFlow(ChatFlow):
                 ]
             else:
                 if conversation_summary == "":
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history>{latest_exchanges_pretty}</conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
+                    chat_context = f"Conversation History:\n{latest_exchanges_pretty}"
                 else:
-                    chat_prompt_msgs = [
-                        SystemMessage(get_sakha_char_prompt()),
-                        SystemMessage(f"User Info: {user_info}"),
-                        SystemMessage(f"Current time: {get_current_time_ist()}"),
-                        SystemMessage(
-                            f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
-                        ),
-                        HumanMessage(user_input),
-                    ]
+                    chat_context = f"Conversation History:<conversation_history><summary>{conversation_summary}</summary> <latest_exchanges> {latest_exchanges_pretty} </latest_exchanges> </conversation_history>"
+
+                chat_prompt_msgs = [
+                    SystemMessage(get_sakha_char_prompt()),
+                    SystemMessage(f"User Info: {user_info}"),
+                    SystemMessage(f"Current time: {get_current_time_ist()}"),
+                    SystemMessage(chat_context),
+                    HumanMessage(user_input),
+                ]
+
             callback = UsageMetadataCallbackHandler()
             model_response = self.llm.with_structured_output(
                 SakhaResponseForNCFlow
