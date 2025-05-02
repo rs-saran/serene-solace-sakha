@@ -56,12 +56,12 @@ class NormalChatFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForNCFlow
             ).invoke(chat_prompt_msgs, config={"callbacks": [callback]})
-            conversation_state.update(latest_sakha_response=model_response, latest_nc_flow_response=model_response)
+            conversation_state.update(latest_sakha_response=model_response, latest_nc_flow_response=model_response, flow="normal_chat")
             logger.info("Successfully generated response in NC Flow")
             print(callback.usage_metadata)
             return conversation_state
 
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
-            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in NCFlow {str(e)}"))
+            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in NCFlow {str(e)}"), flow="normal_chat")
             return conversation_state
