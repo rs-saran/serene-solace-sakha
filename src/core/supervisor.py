@@ -146,7 +146,7 @@ You are currently in the 'follow_up' flow. Use the following logic to determine 
             supervisor_response = self.llm.invoke(prompt)
             logger.info(f"Supervisor Decision: {supervisor_response}")
 
-            return {"supervisor_response": supervisor_response}
+            return {"latest_supervisor_response": supervisor_response}
 
         except Exception as e:
             logger.exception(f"Error in get_supervisor_decision: {e}")
