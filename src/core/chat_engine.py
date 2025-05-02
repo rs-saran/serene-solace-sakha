@@ -24,109 +24,70 @@ class ChatEngine:
         self.exc_window = 10  # for summarizer
         self.reset_exchange = 1
 
-    def generate_response(self, user_input, user_id, thread_id, user_info):
+    def generate_response(self, conversation_state):
         try:
-            latest_exchanges_pretty = exchanges_pretty(self.latest_exchanges)
-            # logger.info(f"latest exchanges from gen response function: {self.latest_exchanges}")
-            # # logger.info(f"latest conv history from gen response function: {self.conversation_history}")
-            # logger.info(f"latest exchanges from gen response function: {latest_exchanges_pretty}")
-            #
-            # logger.info(f"[User-{user_id}] Input: {user_input}")
 
-            chat_flow = self.chat_flow_manager.get_chat_flow(self.flow)
-            raw_model_response = chat_flow.generate_response(
-                user_id, thread_id,
-                self.exchange,
-                user_input,
-                latest_exchanges_pretty,
-                user_info,
-                self.conversation_summary,
-                self.activity_details,
-            )
+            chat_flow = self.chat_flow_manager.get_chat_flow(conversation_state)
 
-            response = self.response_manager.handle_response(
-                user_id, thread_id, raw_model_response
-            )
-            model_response = response.get("reply", "")
+            conversation_state = chat_flow.generate_response(conversation_state)
 
-            logger.info(f"[User-{user_id}] Sakha Response: {model_response}")
+            reply_to_user = self.response_manager.handle_response(conversation_state)
 
-            if response.get("activity_details", None):
-                self.activity_details = response["activity_details"]
-
-            return model_response
+            return reply_to_user
 
         except Exception as e:
             logger.error(f"Error processing user input: {str(e)}", exc_info=True)
-            return "I'm sorry, I ran into an issue. Could you try again?"
+            return "Sorry, I ran into an issue. Can you try again?"
 
-    def update_conversation_history(self, user_input, response):
-        if self.exchange == 0 and self.flow in ("reminder", "follow_up"):
-            self.conversation_history.append(AIMessage(content=response))
+    def update_conversation_history(self, response, conversation_state):
+        exchange = conversation_state.get("exchange", 0)
+        flow = conversation_state.get("flow", "normal_chat")
+        conversation_history = conversation_state.get("conversation_history", [])
+        user_input = conversation_state.get("user_input")
+
+        if exchange == 0 and flow in ("reminder", "follow_up"):
+            conversation_history.append(AIMessage(content=response))
         else:
-            self.conversation_history.extend(
+            conversation_history.extend(
                 [HumanMessage(content=user_input), AIMessage(content=response)]
             )
 
+        return conversation_history
+
     def chat(self, conversation_state: ConversationState):
         try:
-            user_input = conversation_state["user_input"]
-            user_id = conversation_state.get("user_id", "dummy_user_id")
-            thread_id = conversation_state.get("thread_id", "dummy_thread_id")
-            user_info = conversation_state.get("user_info", "no user_info")
-            self.activity_details = conversation_state.get(
-                "activity_details", "no activity details"
-            )
-            self.conversation_history = conversation_state.get(
+
+            conversation_history = conversation_state.get(
                 "conversation_history", []
             )
-            self.latest_exchanges = conversation_state.get(
+            latest_exchanges = conversation_state.get(
                 "latest_exchanges", []
             )
-            self.conversation_summary = conversation_state.get(
+            conversation_summary = conversation_state.get(
                 "conversation_summary", ""
             )
-            self.exchange = conversation_state.get("exchange", 0)
-            self.flow = conversation_state.get("supervisor_response").pickedFlow
-            # print(f"flow in chat engine: {self.flow}")
-            # print(f"flow in chat engine from supervisor response: {}")
-            if self.exchange > 0 and self.exchange % self.exc_window == 0:
-                self.reset_exchange = self.exc_window
+            exchange = conversation_state.get("exchange", 0)
+            reset_exchange = conversation_state.get("reset_exchange", 1)
+
+            if exchange > 0 and exchange % self.exc_window == 0:
+                reset_exchange = exchange
                 # logger.info(f"latest exchanges passed from chat function: {self.latest_exchanges}")
-                self.conversation_summary = self.summarizer.summarize_conversation(self.latest_exchanges, self.conversation_summary)
+                conversation_summary = self.summarizer.summarize_conversation(latest_exchanges, conversation_summary)
+                conversation_state.update(reset_exchange=reset_exchange,
+                                          conversation_summary=conversation_summary)
 
-            self.latest_exchanges = self.conversation_history[(2 * (self.reset_exchange - 1)):]
+            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)):]
+            conversation_state.update(latest_exchanges=latest_exchanges)
 
-            # print(f"latest exchanges chat function: {self.latest_exchanges}")
+            reply_to_user = self.generate_response(conversation_state)
 
-            logger.info(
-                f"Starting conversation with User-{user_id} | Flow: {self.flow}"
-            )
+            if reply_to_user != "Sorry, I ran into an issue. Can you try again?":
+                updated_conversation_history = self.update_conversation_history(str(reply_to_user), conversation_state)
+                exchange += 1
+                conversation_state.update(conversation_history=updated_conversation_history,exchange=exchange)
 
-            model_response = self.generate_response(
-                user_input, user_id, thread_id, user_info
-            )
-
-            self.update_conversation_history(user_input, str(model_response))
-            self.exchange += 1
-
-            return {
-                "conversation_history": self.conversation_history,
-                "user_input": user_input,
-                "exchange": self.exchange,
-                "activity_details": self.activity_details,
-                "to_user": model_response,
-                "latest_exchanges": self.latest_exchanges,
-                "conversation_summary": self.conversation_summary,
-                "reset_exchange": self.reset_exchange
-            }
+            return conversation_state
 
         except Exception as e:
             logger.error(f"Critical error in chat execution: {str(e)}", exc_info=True)
-            return {
-                "conversation_history": self.conversation_history,
-                "user_input": "error",
-                "exchange": self.exchange,
-                "activity_details": self.activity_details,
-                "to_user": "Something went wrong. Please try again later.",
-            }
+            return conversation_state
