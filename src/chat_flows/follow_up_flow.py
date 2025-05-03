@@ -63,7 +63,7 @@ class FollowUpFlow(ChatFlow):
             ).invoke(chat_prompt_msgs)
             logger.info("Successfully generated follow-up response.")
             conversation_state.update(latest_sakha_response=model_response, latest_fu_flow_response=model_response,
-                                      followup_start=False, flow="follow_up")
+                                      flow="follow_up")
 
             return conversation_state
 
