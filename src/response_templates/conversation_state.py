@@ -1,13 +1,17 @@
-from typing import TypedDict, List, Union
+from typing import List, TypedDict, Union
 
 from langchain_core.messages import AnyMessage
 
+from src.response_templates.sakha_template import (
+    SakhaResponseForASFlow,
+    SakhaResponseForError,
+    SakhaResponseForFUFlow,
+    SakhaResponseForNCFlow,
+    SakhaResponseForRemFlow,
+)
 from src.response_templates.supervisor_response import SupervisorResponse
-from src.response_templates.user_situation_gauger import SituationGaugerResponse
-from src.response_templates.sakha_template import SakhaResponseForNCFlow, SakhaResponseForASFlow, \
-    SakhaResponseForRemFlow, SakhaResponseForFUFlow, SakhaResponseForError
-
 from src.response_templates.user_info import UserInfo
+from src.response_templates.user_situation_gauger import SituationGaugerResponse
 
 
 # Conversation State to hold all user interaction details
@@ -34,9 +38,14 @@ class ConversationState(TypedDict):
     latest_supervisor_response: SupervisorResponse
     latest_user_situation_gauger_response: SituationGaugerResponse
 
-    latest_sakha_response: Union[SakhaResponseForNCFlow, SakhaResponseForASFlow, SakhaResponseForRemFlow, SakhaResponseForFUFlow, SakhaResponseForError]
+    latest_sakha_response: Union[
+        SakhaResponseForNCFlow,
+        SakhaResponseForASFlow,
+        SakhaResponseForRemFlow,
+        SakhaResponseForFUFlow,
+        SakhaResponseForError,
+    ]
     latest_nc_flow_response: SakhaResponseForNCFlow
     latest_as_flow_response: SakhaResponseForASFlow
     latest_rem_flow_response: SakhaResponseForRemFlow
     latest_fu_flow_response: SakhaResponseForFUFlow
-

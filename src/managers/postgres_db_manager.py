@@ -18,7 +18,9 @@ class PostgresDBManager:
         if db_config is None:
             raise ValueError("db_config is required for postgres_db_manager")
         if any(value is None for value in db_config.values()):
-            raise ValueError("All values in db_config are required for postgres_db_manager")
+            raise ValueError(
+                "All values in db_config are required for postgres_db_manager"
+            )
         if cls._instance is None:
             cls._instance = super(PostgresDBManager, cls).__new__(cls)
             try:

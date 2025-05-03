@@ -1,10 +1,10 @@
 from langchain_core.messages import AIMessage, HumanMessage
 
 from src.chat_flows.chat_flow_manager import ChatFlowManager
+from src.core.conversation_summarizer import ConversationSummarizer
 from src.logger import get_logger
 from src.response_templates.conversation_state import ConversationState
 from src.utils import exchanges_pretty
-from src.core.conversation_summarizer import ConversationSummarizer
 
 logger = get_logger(__name__)
 
@@ -55,40 +55,42 @@ class ChatEngine:
                 [HumanMessage(content=user_input), AIMessage(content=response)]
             )
         exchange += 1
-        conversation_state.update(conversation_history=conversation_history, exchange=exchange)
+        conversation_state.update(
+            conversation_history=conversation_history, exchange=exchange
+        )
 
         return conversation_state
 
     def chat(self, conversation_state: ConversationState):
         try:
 
-            conversation_history = conversation_state.get(
-                "conversation_history", []
-            )
-            latest_exchanges = conversation_state.get(
-                "latest_exchanges", []
-            )
-            conversation_summary = conversation_state.get(
-                "conversation_summary", ""
-            )
+            conversation_history = conversation_state.get("conversation_history", [])
+            latest_exchanges = conversation_state.get("latest_exchanges", [])
+            conversation_summary = conversation_state.get("conversation_summary", "")
             exchange = conversation_state.get("exchange", 0)
             reset_exchange = conversation_state.get("reset_exchange", 1)
 
             if exchange > 0 and exchange % self.exc_window == 0:
                 reset_exchange = exchange
                 # logger.info(f"latest exchanges passed from chat function: {self.latest_exchanges}")
-                conversation_summary = self.summarizer.summarize_conversation(latest_exchanges, conversation_summary)
-                conversation_state.update(reset_exchange=reset_exchange,
-                                          conversation_summary=conversation_summary)
+                conversation_summary = self.summarizer.summarize_conversation(
+                    latest_exchanges, conversation_summary
+                )
+                conversation_state.update(
+                    reset_exchange=reset_exchange,
+                    conversation_summary=conversation_summary,
+                )
 
-            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)):]
+            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)) :]
             conversation_state.update(latest_exchanges=latest_exchanges)
 
             reply_to_user = self.generate_response(conversation_state)
-            conversation_state.update(to_user = reply_to_user)
+            conversation_state.update(to_user=reply_to_user)
 
             if reply_to_user != "Sorry, I ran into an issue. Can you try again?":
-                conversation_state = self.update_conversation_history(str(reply_to_user), conversation_state)
+                conversation_state = self.update_conversation_history(
+                    str(reply_to_user), conversation_state
+                )
 
             return conversation_state
 

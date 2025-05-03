@@ -1,14 +1,14 @@
 from src.logger import get_logger
+from src.managers.memory_manager import MemoryManager
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
 from src.response_templates.sakha_template import (
-    SakhaResponseForNCFlow,
     SakhaResponseForASFlow,
     SakhaResponseForError,
     SakhaResponseForFUFlow,
+    SakhaResponseForNCFlow,
     SakhaResponseForRemFlow,
 )
-from src.managers.memory_manager import MemoryManager
 
 logger = get_logger(__name__)
 
@@ -36,8 +36,16 @@ class ResponseManager:
             if isinstance(raw_response, SakhaResponseForNCFlow):
                 self._handle_nc_flow(user_id, thread_id, raw_response)
             elif isinstance(raw_response, SakhaResponseForASFlow):
-                gauged_user_situation = getattr(conversation_state.get("latest_user_situation_gauger_response", None),"userSituation", None)
-                self._handle_as_flow(user_id, thread_id, raw_response, gauged_user_situation)
+                gauged_user_situation = getattr(
+                    conversation_state.get(
+                        "latest_user_situation_gauger_response", None
+                    ),
+                    "userSituation",
+                    None,
+                )
+                self._handle_as_flow(
+                    user_id, thread_id, raw_response, gauged_user_situation
+                )
             elif isinstance(raw_response, SakhaResponseForRemFlow):
                 self._handle_rem_flow(user_id, thread_id, raw_response)
             elif isinstance(raw_response, SakhaResponseForFUFlow):
@@ -61,7 +69,13 @@ class ResponseManager:
         """
         logger.info(f"Processing nc flow for user {user_id}, thread {thread_id}.")
 
-    def _handle_as_flow(self, user_id, thread_id, response: SakhaResponseForASFlow, gauged_user_situation):
+    def _handle_as_flow(
+        self,
+        user_id,
+        thread_id,
+        response: SakhaResponseForASFlow,
+        gauged_user_situation,
+    ):
         """
         Handles the Activity Suggestion Flow.
         Stores the reminder if all agreement conditions are met.
@@ -76,7 +90,11 @@ class ResponseManager:
                     self.reminder_manager.add_reminder(
                         user_id,
                         thread_id,
-                        gauged_user_situation if gauged_user_situation is not None else response.reminder.user_situation,
+                        (
+                            gauged_user_situation
+                            if gauged_user_situation is not None
+                            else response.reminder.user_situation
+                        ),
                         response.reminder.activity,
                         response.reminder.hour,
                         response.reminder.minute,
@@ -159,7 +177,7 @@ class ResponseManager:
                         user_id,
                         thread_id,
                     ),
-                    fetch=True
+                    fetch=True,
                 )
 
                 mem_manager = MemoryManager()
@@ -179,10 +197,9 @@ class ResponseManager:
                 )
             except Exception as e:
                 logger.error(
-                    f"Error storing activity memories for user {user_id}: {e}", exc_info=True
+                    f"Error storing activity memories for user {user_id}: {e}",
+                    exc_info=True,
                 )
-
-
 
     def _handle_rem_flow(self, user_id, thread_id, response: SakhaResponseForRemFlow):
         """

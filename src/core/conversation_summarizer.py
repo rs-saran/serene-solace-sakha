@@ -1,5 +1,5 @@
-from src.utils import exchanges_pretty
 from src.logger import get_logger
+from src.utils import exchanges_pretty
 
 logger = get_logger(__name__)
 
@@ -24,7 +24,9 @@ class ConversationSummarizer:
                                 Note: Do not write any other lines apart from those requested. Do not suggest what Sakha should do.
                                 """
 
-    def _create_summary_prompt(self, latest_exchanges: str, conversation_summary: str) -> str:
+    def _create_summary_prompt(
+        self, latest_exchanges: str, conversation_summary: str
+    ) -> str:
         """
         Creates the prompt for the LLM to summarize the conversation.
         """
@@ -67,16 +69,16 @@ class ConversationSummarizer:
             A string containing the 5-point summary of the conversation.
         """
         formatted_latest_exchanges = exchanges_pretty(latest_exchanges)
-        prompt = self._create_summary_prompt(formatted_latest_exchanges, conversation_summary)
+        prompt = self._create_summary_prompt(
+            formatted_latest_exchanges, conversation_summary
+        )
 
         # logger.info(
         #     f"Generating summary ...  {prompt}"
         # )
         try:
             summary_response = self.llm.invoke([("user", prompt)])
-            logger.info(
-                f"Summary generated: {summary_response.content}"
-            )
+            logger.info(f"Summary generated: {summary_response.content}")
             return summary_response.content
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}", exc_info=True)
