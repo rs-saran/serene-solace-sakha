@@ -35,14 +35,22 @@ class ReminderManager:
         """Sends a reminder notification."""
         self._send_request(
             "send-reminder",
-            {"user_id": user_id, "thread_id": thread_id, "activity_details": activity_details},
+            {
+                "user_id": user_id,
+                "thread_id": thread_id,
+                "activity_details": activity_details,
+            },
         )
 
     def _send_follow_up(self, user_id: str, thread_id: str, activity_details: str):
         """Sends a follow-up notification."""
         self._send_request(
             "send-follow-up",
-            {"user_id": user_id, "thread_id": thread_id, "activity_details": activity_details},
+            {
+                "user_id": user_id,
+                "thread_id": thread_id,
+                "activity_details": activity_details,
+            },
         )
 
     def _update_activity_status(self, activity_id: int, column: str):
@@ -85,12 +93,7 @@ class ReminderManager:
                 self._execute_reminder,
                 "date",
                 run_date=start_time_utc,
-                args=[
-                    activity_id,
-                    user_id,
-                    thread_id,
-                    activity_details
-                ],
+                args=[activity_id, user_id, thread_id, activity_details],
                 id=f"reminder_{activity_id}",
             )
             logger.info(f"Scheduled reminder for {activity} at {hour}:{minute} IST.")

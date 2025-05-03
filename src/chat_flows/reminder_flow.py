@@ -3,17 +3,18 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from src.chat_flows.chat_flow import ChatFlow
 from src.logger import get_logger
 from src.managers.prompt_manager import get_sakha_char_prompt
-from src.response_templates.sakha_template import SakhaResponseForRemFlow, SakhaResponseForError
-from src.utils import get_current_time_ist, exchanges_pretty
+from src.response_templates.sakha_template import (
+    SakhaResponseForError,
+    SakhaResponseForRemFlow,
+)
+from src.utils import exchanges_pretty, get_current_time_ist
 
 logger = get_logger(__name__)
 
 
 class ReminderFlow(ChatFlow):
 
-    def generate_response(
-        self, conversation_state
-    ):
+    def generate_response(self, conversation_state):
         user_input = conversation_state.get("user_input")
         user_info = conversation_state.get("user_info", "no user_info")
         reminder_start = conversation_state.get("reminder_start", "no user_info")
@@ -30,7 +31,8 @@ class ReminderFlow(ChatFlow):
             chat_prompt_msgs = [
                 SystemMessage(get_sakha_char_prompt()),
                 SystemMessage(f"Current time: {get_current_time_ist()}"),
-                SystemMessage(f"User Info: {user_info}")]
+                SystemMessage(f"User Info: {user_info}"),
+            ]
 
             if conversation_summary == "":
                 chat_context = f"Conversation History:\n{latest_exchanges_pretty}"
@@ -44,12 +46,18 @@ class ReminderFlow(ChatFlow):
                 chat_prompt_msgs.append(SystemMessage(reminder_instruction))
             else:
                 reminder_instruction = f"{activity_details}. \n Motivate the user to complete the activity. If they seem reluctant, suggest small fun modifications to make it more enjoyable or ask if they want alternatives. Otherwise, end the conversation."
-                chat_prompt_msgs.extend([SystemMessage(reminder_instruction), HumanMessage(user_input)])
+                chat_prompt_msgs.extend(
+                    [SystemMessage(reminder_instruction), HumanMessage(user_input)]
+                )
 
             model_response = self.llm.with_structured_output(
                 SakhaResponseForRemFlow
             ).invoke(chat_prompt_msgs)
-            conversation_state.update(latest_sakha_response=model_response, latest_rem_flow_response=model_response, flow="reminder")
+            conversation_state.update(
+                latest_sakha_response=model_response,
+                latest_rem_flow_response=model_response,
+                flow="reminder",
+            )
 
             logger.info("Successfully generated reminder response.")
 
@@ -57,5 +65,11 @@ class ReminderFlow(ChatFlow):
 
         except Exception as e:
             logger.error(f"Error generating reminder response: {str(e)}", exc_info=True)
-            conversation_state.update(latest_sakha_response=SakhaResponseForError(replyToUser="Sorry, I ran into an issue. Can you try again?", error=f"Error generating response in RemFlow {str(e)}"), flow="reminder")
+            conversation_state.update(
+                latest_sakha_response=SakhaResponseForError(
+                    replyToUser="Sorry, I ran into an issue. Can you try again?",
+                    error=f"Error generating response in RemFlow {str(e)}",
+                ),
+                flow="reminder",
+            )
             return conversation_state

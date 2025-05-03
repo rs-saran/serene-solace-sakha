@@ -15,31 +15,32 @@ class Supervisor:
         self.llm = llm.with_structured_output(SupervisorResponse)
 
     def get_supervisor_prompt(
-            self,
-            user_input: str,
-            select_conv: str = "",
-            conversation_summary: str = "",
-            flow: str = "normal_chat"
+        self,
+        user_input: str,
+        select_conv: str = "",
+        conversation_summary: str = "",
+        flow: str = "normal_chat",
     ) -> str:
         """Generate the prompt for the supervisor based on the current and past conversation."""
 
         conversation_summary_insert = (
             f"Conversation summary so far:\n{conversation_summary}\n"
-            if conversation_summary else ""
+            if conversation_summary
+            else ""
         )
 
         select_conv_insert = (
             f"{select_conv}"
-            if select_conv else "This is the beginning of the conversation"
+            if select_conv
+            else "This is the beginning of the conversation"
         )
 
-        if user_input in ['Reminder Triggered']:
+        if user_input in ["Reminder Triggered"]:
             user_input_insert = f"System Message: Trigger the reminder flow now\n"
-        elif user_input in ['Follow-up Triggered']:
+        elif user_input in ["Follow-up Triggered"]:
             user_input_insert = f"System Message: Trigger the follow_up flow now\n"
         else:
             user_input_insert = f"human: {user_input}\n"
-
 
         purpose_insert = "Sakha's role is to act as friend who brightens the user's day by suggesting activities or If user the user only wants to talk then then just chat like a friend respecting user boundaries"
 
@@ -63,7 +64,6 @@ Use the following guidelines to determine whether to transition to another flow:
 - If none of the above apply → remain in 'normal_chat'.
 - Note: you can only transition into ['normal_chat', 'activity_suggestion', 'crisis_helpline']
         """,
-
             "activity_suggestion": """
         You are currently in the 'activity_suggestion' flow. Use the following logic to determine whether to stay in this flow or transition to another:
 
@@ -75,7 +75,6 @@ Use the following guidelines to determine whether to transition to another flow:
 - Otherwise → stay in 'activity_suggestion' flow.
 - Note: you can only transition into ['normal_chat', 'activity_suggestion', 'crisis_helpline']
         """,
-
             "reminder": """
 You are currently in the 'reminder' flow. Use the following logic to guide the conversation:
 
@@ -85,7 +84,6 @@ You are currently in the 'reminder' flow. Use the following logic to guide the c
 - If the user is no longer interested in doing an activity → switch to 'normal_chat' flow.
 - Note: If none of the above apply → stay in 'reminder' flow.
         """,
-
             "follow_up": """
 You are currently in the 'follow_up' flow. Use the following logic to determine the next step:
 
@@ -93,13 +91,12 @@ You are currently in the 'follow_up' flow. Use the following logic to determine 
 - If any of the required feedback (completion status, enjoyment level, and reason for skipping if the activity wasn’t done) has not yet been collected → stay in 'follow_up' flow.
 - If all required feedback has been collected and the user does not wish to chat further → stay in 'follow_up' flow.
         """,
-
             "crisis_helpline": """
         You are currently in the 'crisis_helpline' flow.
 
         - This is a safety-critical flow.
         - Once triggered → stay in crisis_helpline flow. Do NOT switch to any other flow under any circumstance.
-        """
+        """,
         }
 
         base_char_prompt = f"""
@@ -125,19 +122,25 @@ You are currently in the 'follow_up' flow. Use the following logic to determine 
             conversation_history = conversation_state.get("conversation_history", [])
             user_input = conversation_state.get("user_input", "")
             reset_exchange = conversation_state.get("reset_exchange", 1)
-            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)):]
+            latest_exchanges = conversation_history[(2 * (reset_exchange - 1)) :]
             conversation_summary = conversation_state.get("conversation_summary", None)
             flow = conversation_state.get("flow", "normal_chat")
 
-            if not user_input and flow not in ['reminder', 'follow_up']:
+            if not user_input and flow not in ["reminder", "follow_up"]:
                 logger.warning("User input is missing in conversation_state.")
-                return {"supervisor_response": SupervisorResponse(pickedFlow="normal_chat",
-                                                                  reason="user input is missing defaulting to normal_chat flow")}  # Default action
+                return {
+                    "supervisor_response": SupervisorResponse(
+                        pickedFlow="normal_chat",
+                        reason="user input is missing defaulting to normal_chat flow",
+                    )
+                }  # Default action
 
             latest_exchanges_pretty = exchanges_pretty(latest_exchanges)
 
             logger.info(f"Generating supervisor decision for input: {user_input}")
-            prompt = self.get_supervisor_prompt(user_input, latest_exchanges_pretty, conversation_summary, flow)
+            prompt = self.get_supervisor_prompt(
+                user_input, latest_exchanges_pretty, conversation_summary, flow
+            )
 
             # logger.info(
             #     f"=================\nPrompt used for supervisor : {prompt}\n=================="

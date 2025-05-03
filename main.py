@@ -1,19 +1,19 @@
+import os
 import signal
 import sys
-import os
+
+from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room
-from dotenv import load_dotenv
+
 from src.core.conversation_graph import ConversationGraph
 from src.core.conversation_processor import ConversationProcessor
-from src.managers.postgres_checkpoint_manager import \
-    PostgresCheckpointerManager
+from src.managers.postgres_checkpoint_manager import PostgresCheckpointerManager
 from src.managers.postgres_db_manager import PostgresDBManager
 from src.managers.reminder_manager import ReminderManager
 from src.managers.response_manager import ResponseManager
 from src.managers.user_manager import UserManager
 from src.utils import get_llm
-
 
 load_dotenv()
 
@@ -35,7 +35,9 @@ response_manager = ResponseManager(
 )
 
 conversation_graph = ConversationGraph(
-    llm=get_llm(groq_api_key=groq_api_key), response_manager=response_manager, checkpointer=checkpointer
+    llm=get_llm(groq_api_key=groq_api_key),
+    response_manager=response_manager,
+    checkpointer=checkpointer,
 ).compile()
 processor = ConversationProcessor(conversation_graph)
 user_manager = UserManager(db_manager)
@@ -105,7 +107,11 @@ def send_reminder():
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "reminder", "reminder_start": False, "activity_details": activity_details},
+            values={
+                "flow": "reminder",
+                "reminder_start": False,
+                "activity_details": activity_details,
+            },
         )
         response = processor.process_input(
             "Reminder Triggered", thread_id=thread_id, user_id=user_id
@@ -134,7 +140,11 @@ def send_follow_up():
 
         conversation_graph.update_state(
             config={"configurable": {"thread_id": thread_id, "user_id": user_id}},
-            values={"flow": "follow_up", "followup_start": True, "activity_details": activity_details},
+            values={
+                "flow": "follow_up",
+                "followup_start": True,
+                "activity_details": activity_details,
+            },
         )
         response = processor.process_input(
             "Follow-up Triggered", thread_id=thread_id, user_id=user_id
