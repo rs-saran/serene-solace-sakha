@@ -45,16 +45,19 @@ class ChatEngine:
         flow = conversation_state.get("flow", "normal_chat")
         conversation_history = conversation_state.get("conversation_history", [])
         user_input = conversation_state.get("user_input")
+        exchange = conversation_state.get("exchange", 0)
 
-        #todo: fix this logic, it will never reach true as these too start props are set to false before conv hist is updated
         if (followup_start or reminder_start) and flow in ("reminder", "follow_up"):
             conversation_history.append(AIMessage(content=response))
+            conversation_state.update(followup_start=False, reminder_start=False)
         else:
             conversation_history.extend(
                 [HumanMessage(content=user_input), AIMessage(content=response)]
             )
+        exchange += 1
+        conversation_state.update(conversation_history=conversation_history, exchange=exchange)
 
-        return conversation_history
+        return conversation_state
 
     def chat(self, conversation_state: ConversationState):
         try:
@@ -85,9 +88,7 @@ class ChatEngine:
             conversation_state.update(to_user = reply_to_user)
 
             if reply_to_user != "Sorry, I ran into an issue. Can you try again?":
-                updated_conversation_history = self.update_conversation_history(str(reply_to_user), conversation_state)
-                exchange += 1
-                conversation_state.update(conversation_history=updated_conversation_history, exchange=exchange)
+                conversation_state = self.update_conversation_history(str(reply_to_user), conversation_state)
 
             return conversation_state
 
