@@ -49,7 +49,7 @@ class ReminderFlow(ChatFlow):
             model_response = self.llm.with_structured_output(
                 SakhaResponseForRemFlow
             ).invoke(chat_prompt_msgs)
-            conversation_state.update(latest_sakha_response=model_response, latest_rem_flow_response=model_response, reminder_start=False, flow="reminder")
+            conversation_state.update(latest_sakha_response=model_response, latest_rem_flow_response=model_response, flow="reminder")
 
             logger.info("Successfully generated reminder response.")
 
