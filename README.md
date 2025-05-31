@@ -4,22 +4,23 @@ Sakha is a friendly AI chatbot designed to help users improve their mood by sugg
 
 [//]: # (🚀 **Try it here**  )
 
-📖 **Read about the implementation details here [WIP]**  
+📖 **[Project Blog: Read about the implementation details here](https://rs-saran.github.io/projects/20250122_serene_solace_sakha/)**  
 
 [//]: # (🎥 **Watch the demo**  )
 
 ## 🎯 Features
-✅ **Personalized Activity Suggestions** – Recommends activities based on user preferences.  
+✅ **Personalized Activity Suggestions** – Recommends activities based on user preferences and feedback.  
 ✅ **Smart Reminders** – Helps users set up reminders for activities.  
 ✅ **Follow-ups & Feedback** – Checks in after an activity to see if it helped improve the user's mood.  
 ✅ **Crisis Support** – Provides helpline information if necessary.  
 ✅ **Seamless Conversations** – Engages naturally with users to support their well-being.  
 
 ## 🛠️ Technologies Used
-- **LLM (LLaMA 3.3-700B via Groq API)** – Powers the chatbot’s responses and supervision.
+- **LLM (LLaMA 3.3)** – Powers the chatbot’s responses and supervision.
 - **LangGraph** – Manages structured conversation flows.
 - **PostgreSQL** – Stores user info, reminders, feedback, and conversation checkpoints.
 - **Flask** – Serves as a lightweight interface for user interaction.
+- **Qdrant** - powers long term memory 
 - **APScheduler** – Schedules and triggers reminders.
 
 ## 🚀 How to Run the App  
@@ -50,17 +51,15 @@ Sakha is a friendly AI chatbot designed to help users improve their mood by sugg
 
 ## ⚠️ Limitations
 
-1. Crisis handling is currently limited to providing a hardcoded helpline number.
-2. Activity suggestions are based on simple preferences and do not yet adapt dynamically over time.
+1. Responses depend on LLMs; edge cases may still exist.
+2. Crisis handling is currently limited to providing a hardcoded helpline number.
 3. No multilingual support yet—currently works only in English.
-4. Chat flow switching is controlled by the backend rather than by the supervisor or Sakha, limiting flexibility in dynamically adjusting conversations based on user interactions.
 
 ## 🔧 Future Improvements
 
-1. **Enhanced Personalization:** Improve activity recommendations by leveraging user history and behavioral patterns.  
-2. **Cross session Memory:** Allow the chatbot to remember past interactions across sessions for more natural and engaging conversations
-3. **Improved Reminder System:** Add features like recurring reminders, snooze options based on user availability.
-4. **Dynamic Chat Flow control:** Enhance chat flow management by allowing dynamic switching based on user interactions rather than relying solely on backend control.
+1. **Cross session Memory:** Allow the chatbot to remember past interactions across sessions for more natural and engaging conversations
+2. **Improved Reminder System:** Add features like recurring reminders, snooze options based on user availability.
+3. **Deploy:** Deploy it to production after testing 
 
 ## 💡 Usage
 - Start chatting with Sakha and receive activity suggestions.
